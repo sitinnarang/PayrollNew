@@ -1,0 +1,349 @@
+/* PayrollPro Theme Switcher - Top Navigation Integration */
+.payrollpro-theme-switcher {
+    position: relative;
+    display: inline-block;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* When used in ABP LeptonX navbar */
+.lpx-navbar .payrollpro-theme-switcher,
+.navbar .payrollpro-theme-switcher {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.theme-toggle-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: transparent;
+    color: #9198a5;
+    border: 1px solid rgba(145, 152, 165, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+/* ABP LeptonX navbar integration */
+.lpx-navbar .theme-toggle-btn,
+.navbar .theme-toggle-btn {
+    background: transparent;
+    border: 1px solid rgba(145, 152, 165, 0.3);
+    color: #9198a5;
+}
+
+.lpx-navbar .theme-toggle-btn:hover,
+.navbar .theme-toggle-btn:hover,
+.theme-toggle-btn:hover {
+    background: rgba(145, 152, 165, 0.1);
+    color: #ffffff;
+    border-color: rgba(145, 152, 165, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle-btn:active {
+    transform: translateY(0);
+}
+
+.theme-toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover i {
+    transform: scale(1.1);
+}
+
+.theme-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 260px;
+    background: #161616;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10000;
+    border: 1px solid rgba(145, 152, 165, 0.2);
+    backdrop-filter: blur(15px);
+}
+
+/* Ensure high z-index for fixed positioned fallback */
+body > .payrollpro-theme-switcher .theme-panel {
+    z-index: 99999;
+}
+
+.theme-panel.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.theme-panel-header {
+    padding: 16px;
+    border-bottom: 1px solid rgba(145, 152, 165, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(22, 22, 22, 0.95);
+    border-radius: 12px 12px 0 0;
+    color: #9198a5;
+}
+
+.theme-panel-header i {
+    color: #667eea;
+    font-size: 16px;
+}
+
+.theme-panel-header span {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.theme-grid {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    background: rgba(145, 152, 165, 0.05);
+}
+
+.theme-option:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-color: rgba(102, 126, 234, 0.4);
+    background: rgba(145, 152, 165, 0.1);
+}
+
+.theme-option.active {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.15);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.theme-preview {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.theme-preview i {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.theme-name {
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #9198a5;
+    text-align: center;
+}
+
+/* Floating Theme Switcher */
+.theme-switcher-floating {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
+.theme-switcher-floating:hover {
+    opacity: 1;
+}
+
+.floating-theme-btn {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: none;
+}
+
+.floating-theme-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Theme-specific overrides */
+.theme-dark {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+.theme-dark .navbar {
+    background-color: #2d2d2d !important;
+    border-bottom: 1px solid #404040 !important;
+}
+
+.theme-dark .card {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    color: #ffffff !important;
+}
+
+.theme-dark .stat-card {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+
+.theme-dark .management-card {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+
+.theme-dark .quick-actions {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+
+.theme-dark .action-btn {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #ffffff !important;
+}
+
+.theme-dark .action-btn:hover {
+    background-color: #4b5563 !important;
+}
+
+.theme-dark .text-muted {
+    color: #9ca3af !important;
+}
+
+.theme-dark .theme-toggle-btn {
+    color: #d1d5db;
+}
+
+.theme-dark .theme-toggle-btn:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .theme-dropdown {
+    background-color: #374151;
+    border-color: #4b5563;
+}
+
+.theme-dark .theme-dropdown .dropdown-item {
+    color: #d1d5db;
+}
+
+.theme-dark .theme-dropdown .dropdown-item:hover {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+.theme-dark .theme-dropdown .dropdown-item.active {
+    background-color: #1f2937;
+    color: #60a5fa;
+}
+
+/* Blue Theme */
+.theme-blue .btn-primary {
+    background-color: #0ea5e9;
+    border-color: #0ea5e9;
+}
+
+.theme-blue .text-primary {
+    color: #0ea5e9 !important;
+}
+
+.theme-blue .border-left-primary {
+    border-left-color: #0ea5e9 !important;
+}
+
+/* Green Theme */
+.theme-green .btn-primary {
+    background-color: #16a34a;
+    border-color: #16a34a;
+}
+
+.theme-green .text-primary {
+    color: #16a34a !important;
+}
+
+.theme-green .border-left-primary {
+    border-left-color: #16a34a !important;
+}
+
+/* Auto Theme Animation */
+.theme-auto {
+    animation: colorShift 10s infinite;
+}
+
+@keyframes colorShift {
+    0%, 100% { filter: hue-rotate(0deg); }
+    25% { filter: hue-rotate(90deg); }
+    50% { filter: hue-rotate(180deg); }
+    75% { filter: hue-rotate(270deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .theme-switcher-floating {
+        top: 15px;
+        right: 15px;
+    }
+    
+    .floating-theme-btn {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .theme-label {
+        display: none !important;
+    }
+}
+
+/* Smooth transitions for theme changes */
+body, .card, .navbar, .btn, .action-btn, .management-card, .stat-card {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Custom scrollbar for dark theme */
+.theme-dark ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.theme-dark ::-webkit-scrollbar-track {
+    background: #2d2d2d;
+}
+
+.theme-dark ::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+}
+
+.theme-dark ::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}

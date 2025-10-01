@@ -1,0 +1,59 @@
+/* Global Theme Switcher Integration */
+
+/* Ensure theme switcher works with ABP LeptonXLite theme */
+.lpx-navbar .payrollpro-theme-switcher,
+.navbar .payrollpro-theme-switcher {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.lpx-navbar .theme-toggle-btn,
+.navbar .theme-toggle-btn {
+    color: #9198a5;
+    opacity: 0.8;
+    background: transparent;
+    border: 1px solid rgba(145, 152, 165, 0.2);
+}
+
+.lpx-navbar .theme-toggle-btn:hover,
+.navbar .theme-toggle-btn:hover {
+    opacity: 1;
+    background-color: rgba(145, 152, 165, 0.1);
+    color: #ffffff;
+}
+
+/* ABP specific navbar integrations */
+.lpx-navbar-nav .nav-item.theme-switcher-nav {
+    display: flex;
+    align-items: center;
+}
+
+.lpx-logo-container .payrollpro-theme-switcher {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Make sure theme switcher appears in the right location */
+.lpx-navbar .lpx-navbar-nav,
+.navbar .navbar-nav {
+    position: relative;
+}
+
+/* Responsive behavior for ABP theme */
+@media (max-width: 991.98px) {
+    .lpx-navbar .payrollpro-theme-switcher {
+        margin: 0.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 0.5rem;
+    }
+    
+    .lpx-logo-container .payrollpro-theme-switcher {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        margin-left: 10px;
+    }
+}
