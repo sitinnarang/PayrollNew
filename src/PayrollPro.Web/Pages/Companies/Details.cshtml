@@ -1,0 +1,337 @@
+@page "/Companies/{id:guid}"
+@using PayrollPro.Companies
+@using PayrollPro.Web.Pages.Companies
+@model DetailsModel
+@{
+    ViewData["Title"] = $"{Model.Company.Name} - Company Details";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary me-3">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(Model.Company.LogoUrl))
+                                {
+                                    <img src="@Model.Company.LogoUrl" alt="@Model.Company.Name Logo" 
+                                         class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <div class="bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                         style="width: 60px; height: 60px;">
+                                        <i class="fas fa-building text-white"></i>
+                                    </div>
+                                }
+                                <div>
+                                    <h2 class="mb-0">@Model.Company.Name</h2>
+                                    <p class="text-muted mb-0">@Model.Company.Code</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <span class="badge @(Model.Company.IsActive ? "bg-success" : "bg-secondary") fs-6">
+                                @(Model.Company.IsActive ? "Active" : "Inactive")
+                            </span>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" 
+                                        id="dropdownMenuButton" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog"></i> Actions
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/Companies/Edit/@Model.Company.Id">
+                                        <i class="fas fa-edit"></i> Edit Company
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/Employees?companyId=@Model.Company.Id">
+                                        <i class="fas fa-users"></i> View Employees
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                        <i class="fas fa-trash"></i> Delete Company
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Details -->
+    <div class="row">
+        <!-- Basic Information -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle text-primary"></i> Company Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Company Name</label>
+                            <p class="fw-bold">@Model.Company.Name</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Company Code</label>
+                            <p class="fw-bold">@Model.Company.Code</p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label text-muted">Description</label>
+                            <p>@(string.IsNullOrEmpty(Model.Company.Description) ? "No description provided." : Model.Company.Description)</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Established Date</label>
+                            <p class="fw-bold">@Model.Company.EstablishedDate.ToString("MMMM dd, yyyy")</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Employee Count</label>
+                            <p class="fw-bold">
+                                <i class="fas fa-users text-primary"></i> @Model.Company.EmployeeCount employees
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-address-book text-success"></i> Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label text-muted">Address</label>
+                            <p class="fw-bold">
+                                <i class="fas fa-map-marker-alt text-danger"></i>
+                                @Model.Company.Address
+                                @if (!string.IsNullOrEmpty(Model.Company.City))
+                                {
+                                    <br><span class="text-muted">@Model.Company.City</span>
+                                    @if (!string.IsNullOrEmpty(Model.Company.State))
+                                    {
+                                        <span class="text-muted">, @Model.Company.State</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.Company.ZipCode))
+                                    {
+                                        <span class="text-muted"> @Model.Company.ZipCode</span>
+                                    }
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Company.Country))
+                                {
+                                    <br><span class="text-muted">@Model.Company.Country</span>
+                                }
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Phone Number</label>
+                            @if (!string.IsNullOrEmpty(Model.Company.Phone))
+                            {
+                                <p class="fw-bold">
+                                    <i class="fas fa-phone text-info"></i>
+                                    <a href="tel:@Model.Company.Phone" class="text-decoration-none">@Model.Company.Phone</a>
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Not provided</p>
+                            }
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Email Address</label>
+                            @if (!string.IsNullOrEmpty(Model.Company.Email))
+                            {
+                                <p class="fw-bold">
+                                    <i class="fas fa-envelope text-warning"></i>
+                                    <a href="mailto:@Model.Company.Email" class="text-decoration-none">@Model.Company.Email</a>
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Not provided</p>
+                            }
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label text-muted">Website</label>
+                            @if (!string.IsNullOrEmpty(Model.Company.Website))
+                            {
+                                <p class="fw-bold">
+                                    <i class="fas fa-globe text-primary"></i>
+                                    <a href="@Model.Company.Website" target="_blank" class="text-decoration-none">
+                                        @Model.Company.Website <i class="fas fa-external-link-alt ms-1 small"></i>
+                                    </a>
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Not provided</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legal Information -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-gavel text-warning"></i> Legal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Tax ID</label>
+                            <p class="fw-bold">@(string.IsNullOrEmpty(Model.Company.TaxId) ? "Not provided" : Model.Company.TaxId)</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Registration Number</label>
+                            <p class="fw-bold">@(string.IsNullOrEmpty(Model.Company.RegistrationNumber) ? "Not provided" : Model.Company.RegistrationNumber)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Company Logo -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-image text-info"></i> Company Logo</h5>
+                </div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.Company.LogoUrl))
+                    {
+                        <img src="@Model.Company.LogoUrl" alt="@Model.Company.Name Logo" 
+                             class="img-fluid rounded shadow" style="max-width: 200px; max-height: 200px;">
+                    }
+                    else
+                    {
+                        <div class="bg-light rounded p-4">
+                            <i class="fas fa-building fa-4x text-muted"></i>
+                            <p class="text-muted mt-2">No logo uploaded</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar text-success"></i> Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Total Employees</span>
+                        <span class="badge bg-primary fs-6">@Model.Company.EmployeeCount</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Company Age</span>
+                        <span class="badge bg-info fs-6">
+                            @((DateTime.Now.Year - Model.Company.EstablishedDate.Year)) years
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Status</span>
+                        <span class="badge @(Model.Company.IsActive ? "bg-success" : "bg-secondary") fs-6">
+                            @(Model.Company.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-clock text-warning"></i> Company Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item mb-3">
+                            <div class="d-flex">
+                                <div class="timeline-marker bg-success rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
+                                <div>
+                                    <p class="mb-1 small text-muted">Company Established</p>
+                                    <p class="mb-0 fw-bold">@Model.Company.EstablishedDate.ToString("MMMM dd, yyyy")</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item mb-3">
+                            <div class="d-flex">
+                                <div class="timeline-marker bg-primary rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
+                                <div>
+                                    <p class="mb-1 small text-muted">Record Created</p>
+                                    <p class="mb-0 fw-bold">@Model.Company.CreationTime.ToString("MMMM dd, yyyy")</p>
+                                </div>
+                            </div>
+                        </div>
+                        @if (Model.Company.LastModificationTime.HasValue)
+                        {
+                            <div class="timeline-item">
+                                <div class="d-flex">
+                                    <div class="timeline-marker bg-warning rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
+                                    <div>
+                                        <p class="mb-1 small text-muted">Last Updated</p>
+                                        <p class="mb-0 fw-bold">@Model.Company.LastModificationTime.Value.ToString("MMMM dd, yyyy")</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>@Model.Company.Name</strong>?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-page-handler="Delete" class="d-inline">
+                    <input type="hidden" asp-for="Company.Id" />
+                    <button type="submit" class="btn btn-danger">Delete Company</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline {
+        position: relative;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 12px;
+        bottom: 0;
+        width: 1px;
+        background: #dee2e6;
+    }
+    
+    .timeline-marker {
+        position: relative;
+        z-index: 1;
+    }
+</style>

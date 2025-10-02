@@ -9,6 +9,8 @@ using Volo.Abp.Guids;
 using Volo.Abp.Identity;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.Uow;
+using Volo.Abp.Authorization.Permissions;
+using Volo.Abp.PermissionManagement;
 
 namespace PayrollPro;
 
@@ -22,6 +24,7 @@ public class PayrollProIdentityDataSeedContributor : IDataSeedContributor, ITran
     private readonly IdentityRoleManager _roleManager;
     private readonly ICurrentTenant _currentTenant;
     private readonly IOptions<IdentityOptions> _identityOptions;
+    private readonly IPermissionManager _permissionManager;
 
     public PayrollProIdentityDataSeedContributor(
         IGuidGenerator guidGenerator,
@@ -31,7 +34,8 @@ public class PayrollProIdentityDataSeedContributor : IDataSeedContributor, ITran
         IdentityUserManager userManager,
         IdentityRoleManager roleManager,
         ICurrentTenant currentTenant,
-        IOptions<IdentityOptions> identityOptions)
+        IOptions<IdentityOptions> identityOptions,
+        IPermissionManager permissionManager)
     {
         _guidGenerator = guidGenerator;
         _roleRepository = roleRepository;
@@ -41,6 +45,7 @@ public class PayrollProIdentityDataSeedContributor : IDataSeedContributor, ITran
         _roleManager = roleManager;
         _currentTenant = currentTenant;
         _identityOptions = identityOptions;
+        _permissionManager = permissionManager;
     }
 
     [UnitOfWork]
@@ -50,6 +55,7 @@ public class PayrollProIdentityDataSeedContributor : IDataSeedContributor, ITran
         {
             await SeedRolesAsync();
             await SeedUsersAsync();
+            await SeedPermissionsAsync();
         }
     }
 
@@ -98,6 +104,26 @@ public class PayrollProIdentityDataSeedContributor : IDataSeedContributor, ITran
             {
                 await _userManager.AddToRoleAsync(adminUser, "admin");
             }
+        }
+    }
+
+    private async Task SeedPermissionsAsync()
+    {
+        // Grant admin permissions to admin role
+        var adminRole = await _roleRepository.FindByNormalizedNameAsync(_lookupNormalizer.NormalizeName("admin"));
+        if (adminRole != null)
+        {
+            // Grant all admin permissions
+            await _permissionManager.SetForRoleAsync("admin", "PayrollPro.Admin", true);
+            await _permissionManager.SetForRoleAsync("admin", "PayrollPro.Admin.ManageAllCompanies", true);
+            await _permissionManager.SetForRoleAsync("admin", "PayrollPro.Admin.ViewAllCompanies", true);
+            
+            // Grant all other permissions for a super admin
+            await _permissionManager.SetForRoleAsync("admin", "PayrollPro.Companies", true);
+            await _permissionManager.SetForRoleAsync("admin", "PayrollPro.Companies.Create", true);
+            await _permissionManager.SetForRoleAsync("admin", "PayrollPro.Companies.Edit", true);
+            await _permissionManager.SetForRoleAsync("admin", "PayrollPro.Companies.Delete", true);
+            await _permissionManager.SetForRoleAsync("admin", "PayrollPro.Companies.ViewAll", true);
         }
     }
 }
