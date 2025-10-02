@@ -27,28 +27,18 @@ namespace PayrollPro
 
         public async Task SeedAsync(DataSeedContext context)
         {
-            Console.WriteLine("DEBUG: PayrollProEmployeeDataSeedContributor.SeedAsync called");
-            
-            var existingEmployeeCount = await _employeeRepository.GetCountAsync();
-            Console.WriteLine($"DEBUG: Existing employee count: {existingEmployeeCount}");
-            
             // Check if we already have employees seeded
-            if (existingEmployeeCount > 0)
+            if (await _employeeRepository.GetCountAsync() > 0)
             {
-                Console.WriteLine("DEBUG: Employees already exist, skipping seeding");
                 return;
             }
 
             var companies = await _companyRepository.GetListAsync();
-            Console.WriteLine($"DEBUG: Found {companies.Count} companies for employee seeding");
             
             foreach (var company in companies)
             {
-                Console.WriteLine($"DEBUG: Seeding employees for company: {company.Name} (ID: {company.Id})");
                 await SeedEmployeesForCompanyAsync(company);
             }
-            
-            Console.WriteLine("DEBUG: Employee seeding completed successfully");
         }
 
         private async Task SeedEmployeesForCompanyAsync(Company company)
