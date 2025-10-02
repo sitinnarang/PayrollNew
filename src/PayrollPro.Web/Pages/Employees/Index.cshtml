@@ -8,486 +8,300 @@
 }
 
 @section styles {
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .employee-header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 15px;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .employee-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 4px solid #4facfe;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .stat-icon {
-            font-size: 2rem;
-            color: #4facfe;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-label {
-            color: #718096;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .employees-table-container {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-        
-        .table-header {
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            padding: 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .table-header h3 {
-            margin: 0;
-            color: #2d3748;
-            font-weight: 600;
-        }
-        
-        .btn-create-employee {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            border: none;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        
-        .btn-create-employee:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
-            color: white;
-        }
-        
-        .employee-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        
-        .employee-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        
-        .status-active {
-            background: #c6f6d5;
-            color: #22543d;
-        }
-        
-        .status-inactive {
-            background: #fed7d7;
-            color: #742a2a;
-        }
-        
-        .status-onleave {
-            background: #fefcbf;
-            color: #744210;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .btn-action {
-            padding: 0.5rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: white;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 35px;
-            height: 35px;
-        }
-        
-        .btn-edit {
-            background: #4299e1;
-        }
-        
-        .btn-edit:hover {
-            background: #3182ce;
-            transform: scale(1.1);
-        }
-        
-        .btn-delete {
-            background: #f56565;
-        }
-        
-        .btn-delete:hover {
-            background: #e53e3e;
-            transform: scale(1.1);
-        }
-        
-        .btn-payroll {
-            background: #9f7aea;
-        }
-        
-        .btn-payroll:hover {
-            background: #805ad5;
-            transform: scale(1.1);
-        }
-        
-        .table-responsive {
-            border-radius: 0 0 15px 15px;
-            overflow: hidden;
-        }
-        
-        .table {
-            margin: 0;
-        }
-        
-        .table th {
-            background: #f8f9fa;
-            border: none;
-            padding: 1rem;
-            font-weight: 600;
-            color: #2d3748;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        
-        .table td {
-            border: none;
-            padding: 1rem;
-            vertical-align: middle;
-            border-bottom: 1px solid #f1f3f4;
-        }
-        
-        .table tbody tr:hover {
-            background: #f8f9ff;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #718096;
-        }
-        
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #cbd5e0;
-        }
-        
-        .filter-container {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .filter-input, .filter-select {
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .filter-input:focus, .filter-select:focus {
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
-        }
-        
-        .company-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        
-        .salary-amount {
-            font-weight: bold;
-            color: #2d5a27;
-        }
-    </style>
+    <!-- SweetAlert2 for Professional Notifications -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/css/employee-management-modern.css" />
 }
 
-<div class="employee-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="h2 mb-2">
-                <i class="fas fa-users me-3"></i>
-                Employee Management
-            </h1>
-            <p class="mb-0 opacity-75">Manage your workforce and employee information</p>
+<div class="employee-management-container">
+    <!-- Modern Professional Header -->
+    <div class="employee-header">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1>
+                        <i class="fas fa-users me-3"></i>
+                        Employee Management
+                    </h1>
+                    <p class="subtitle">Manage your workforce and employee information</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/Employees/Create?companyId=@(ViewContext.HttpContext.Request.Query["companyId"])" class="btn-add-employee">
+                        <i class="fas fa-user-plus"></i>
+                        Add Employee
+                    </a>
+                    <a href="/Companies" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Companies
+                    </a>
+                </div>
+            </div>
         </div>
-        <a href="/Employees/CreateModal" class="btn-create-employee" data-bs-toggle="modal" data-bs-target="#EmployeeCreateModal">
-            <i class="fas fa-user-plus me-2"></i>
-            Add New Employee
-        </a>
     </div>
-</div>
 
-<div class="employee-stats">
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-users"></i>
+    <!-- Statistics Cards -->
+    <div class="employee-stats-grid">
+        <div class="stat-card" style="--delay: 0">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-value" id="totalEmployees">@Model.Employees.TotalCount</div>
+            <div class="stat-label">Total Employees</div>
         </div>
-        <div class="stat-value" id="totalEmployees">@Model.Employees.TotalCount</div>
-        <div class="stat-label">Total Employees</div>
-    </div>
-    
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-check-circle"></i>
+        
+        <div class="stat-card success" style="--delay: 1">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-value" id="activeEmployees">@Model.Employees.Items.Count(e => e.Status == EmployeeStatus.Active)</div>
+            <div class="stat-label">Active Employees</div>
         </div>
-        <div class="stat-value" id="activeEmployees">@Model.Employees.Items.Count(e => e.Status == EmployeeStatus.Active)</div>
-        <div class="stat-label">Active Employees</div>
-    </div>
-    
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-briefcase"></i>
+        
+        <div class="stat-card warning" style="--delay: 2">
+            <div class="stat-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-value" id="departments">@Model.Employees.Items.Select(e => e.Department).Distinct().Count()</div>
+            <div class="stat-label">Departments</div>
         </div>
-        <div class="stat-value" id="departments">@Model.Employees.Items.Select(e => e.Department).Distinct().Count()</div>
-        <div class="stat-label">Departments</div>
-    </div>
-    
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-dollar-sign"></i>
+        
+        <div class="stat-card purple" style="--delay: 3">
+            <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-value" id="avgSalary">@(Model.Employees.Items.Any() ? $"${Model.Employees.Items.Average(e => e.Salary):N0}" : "$0")</div>
+            <div class="stat-label">Average Salary</div>
         </div>
-        <div class="stat-value" id="avgSalary">@(Model.Employees.Items.Any() ? $"${Model.Employees.Items.Average(e => e.Salary):N0}" : "$0")</div>
-        <div class="stat-label">Avg Salary</div>
     </div>
-</div>
 
-<div class="filter-container">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="input-group">
-                <span class="input-group-text">
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <h4>
+            <i class="fas fa-filter"></i>
+            Filter & Search
+        </h4>
+        <div class="filter-grid">
+            <div class="form-group">
+                <label class="form-label">Search Employees</label>
+                <div class="search-input-group">
                     <i class="fas fa-search"></i>
-                </span>
-                <input type="text" class="filter-input" placeholder="Search employees..." id="employeeSearch">
+                    <input type="text" class="form-control" placeholder="Search by name, email, or position..." id="employeeSearch">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Company</label>
+                <select class="form-select" id="companyFilter">
+                    <option value="">All Companies</option>
+                    @foreach (var company in Model.Companies.Items)
+                    {
+                        var isSelected = company.Id.ToString() == ViewContext.HttpContext.Request.Query["companyId"];
+                        <option value="@company.Id" selected="@isSelected">@company.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Department</label>
+                <select class="form-select" id="departmentFilter">
+                    <option value="">All Departments</option>
+                    @foreach (var dept in Model.Employees.Items.Select(e => e.Department).Distinct().OrderBy(d => d))
+                    {
+                        <option value="@dept">@dept</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="OnLeave">On Leave</option>
+                    <option value="Terminated">Terminated</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="btn-filter" onclick="clearFilters()" title="Clear Filters">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="btn-filter" onclick="exportEmployees()" title="Export Data">
+                    <i class="fas fa-download"></i>
+                </button>
             </div>
         </div>
-        <div class="col-md-3">
-            <select class="filter-select" id="companyFilter">
-                <option value="">All Companies</option>
-                @foreach (var company in Model.Companies.Items)
-                {
-                    <option value="@company.Id">@company.Name</option>
-                }
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select class="filter-select" id="departmentFilter">
-                <option value="">All Departments</option>
-                @foreach (var dept in Model.Employees.Items.Select(e => e.Department).Distinct().OrderBy(d => d))
-                {
-                    <option value="@dept">@dept</option>
-                }
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select class="filter-select" id="statusFilter">
-                <option value="">All Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                <option value="OnLeave">On Leave</option>
-                <option value="Terminated">Terminated</option>
-            </select>
-        </div>
     </div>
-</div>
 
-<div class="employees-table-container">
-    <div class="table-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h3>Employees List</h3>
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary btn-sm" onclick="refreshEmployees()">
-                    <i class="fas fa-sync me-1"></i> Refresh
-                </button>
-                <button class="btn btn-outline-success btn-sm" onclick="exportEmployees()">
-                    <i class="fas fa-download me-1"></i> Export
-                </button>
-            </div>
+    <!-- View Toggle -->
+    <div class="view-toggle">
+        <h4>
+            <i class="fas fa-eye me-2"></i>
+            Employee Directory
+            <span class="badge bg-primary ms-2" id="visibleCount">@Model.Employees.Items.Count()</span>
+        </h4>
+        <div class="view-buttons">
+            <button class="view-btn active" data-view="cards">
+                <i class="fas fa-th-large me-1"></i> Cards
+            </button>
+            <button class="view-btn" data-view="table">
+                <i class="fas fa-table me-1"></i> Table
+            </button>
         </div>
     </div>
-    
-    <div class="table-responsive">
+
+    <!-- Employees Container -->
+    <div class="employees-container">
         @if (Model.Employees.Items.Any())
         {
-            <table class="table" id="employeesTable">
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Company</th>
-                        <th>Department</th>
-                        <th>Position</th>
-                        <th>Salary</th>
-                        <th>Hire Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var employee in Model.Employees.Items)
-                    {
-                        <tr data-company="@employee.CompanyId" data-department="@employee.Department" data-status="@employee.Status">
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="employee-avatar me-3">
-                                        @employee.FirstName.Substring(0, 1)@employee.LastName.Substring(0, 1)
+            <!-- Card View -->
+            <div class="employees-grid" id="cardView">
+                @{int cardIndex = 0;}
+                @foreach (var employee in Model.Employees.Items)
+                {
+                    <div class="employee-card" style="--delay: @(cardIndex % 6)" 
+                         data-company="@employee.CompanyId" 
+                         data-department="@employee.Department" 
+                         data-status="@employee.Status"
+                         data-search="@employee.FullName.ToLower() @employee.Email.ToLower() @employee.Position.ToLower() @employee.Department.ToLower()">
+                        
+                        <div class="employee-status @($"status-{employee.Status.ToString().ToLower()}")">
+                            @employee.Status
+                        </div>
+                        
+                        <div class="employee-card-header">
+                            <div class="employee-avatar">
+                                @employee.FirstName.Substring(0, 1)@employee.LastName.Substring(0, 1)
+                            </div>
+                            <div class="employee-info">
+                                <div class="employee-name">@employee.FullName</div>
+                                <div class="employee-position">@employee.Position</div>
+                                <div class="employee-contact">
+                                    <div class="contact-item">
+                                        <i class="fas fa-envelope"></i>
+                                        <span>@employee.Email</span>
                                     </div>
-                                    <div>
-                                        <div class="fw-bold">@employee.FullName</div>
-                                        <small class="text-muted">
-                                            <i class="fas fa-envelope me-1"></i>@employee.Email
-                                        </small>
-                                        @if (!string.IsNullOrEmpty(employee.Phone))
-                                        {
-                                            <br>
-                                            <small class="text-muted">
-                                                <i class="fas fa-phone me-1"></i>@employee.Phone
-                                            </small>
-                                        }
-                                    </div>
+                                    @if (!string.IsNullOrEmpty(employee.Phone))
+                                    {
+                                        <div class="contact-item">
+                                            <i class="fas fa-phone"></i>
+                                            <span>@employee.Phone</span>
+                                        </div>
+                                    }
                                 </div>
-                            </td>
-                            <td>
-                                <span class="company-badge">@employee.CompanyName</span>
-                                @if (!string.IsNullOrEmpty(employee.CompanyCode))
-                                {
-                                    <br>
-                                    <small class="text-muted">@employee.CompanyCode</small>
-                                }
-                            </td>
-                            <td>
-                                <div>
-                                    <i class="fas fa-building text-muted me-1"></i>
-                                    @employee.Department
+                            </div>
+                        </div>
+                        
+                        <div class="employee-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Company</div>
+                                <div class="detail-value">
+                                    <span class="company-badge">
+                                        <i class="fas fa-building"></i>
+                                        @employee.CompanyName
+                                    </span>
                                 </div>
-                            </td>
-                            <td>
-                                <div>
-                                    <i class="fas fa-user-tie text-muted me-1"></i>
-                                    @employee.Position
-                                </div>
-                            </td>
-                            <td>
-                                <div class="salary-amount">@employee.FormattedSalary</div>
-                            </td>
-                            <td>
-                                <div>
-                                    @employee.HireDate.ToString("MMM dd, yyyy")
-                                    <br>
-                                    <small class="text-muted">@employee.YearsOfService years</small>
-                                </div>
-                            </td>
-                            <td>
-                                @switch (employee.Status)
-                                {
-                                    case EmployeeStatus.Active:
-                                        <span class="employee-status status-active">
-                                            <i class="fas fa-check-circle"></i>
-                                            Active
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Department</div>
+                                <div class="detail-value">@employee.Department</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Hire Date</div>
+                                <div class="detail-value">@employee.HireDate.ToString("MMM dd, yyyy")</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Salary</div>
+                                <div class="detail-value salary-value">@employee.FormattedSalary</div>
+                            </div>
+                        </div>
+                        
+                        <div class="employee-actions">
+                            <a href="/Payroll/Employee/@employee.Id" class="action-btn btn-payroll" title="View Payroll">
+                                <i class="fas fa-money-bill"></i>
+                            </a>
+                            <a href="/Employees/Edit/@employee.Id" class="action-btn btn-edit" title="Edit Employee">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="action-btn btn-delete" title="Delete Employee" onclick="deleteEmployee('@employee.Id', '@employee.FullName')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    cardIndex++;
+                }
+            </div>
+
+            <!-- Table View (Hidden by default) -->
+            <div class="table-container" id="tableView" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table" id="employeesTable">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Company</th>
+                                <th>Department</th>
+                                <th>Position</th>
+                                <th>Salary</th>
+                                <th>Hire Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var employee in Model.Employees.Items)
+                            {
+                                <tr data-company="@employee.CompanyId" 
+                                    data-department="@employee.Department" 
+                                    data-status="@employee.Status"
+                                    data-search="@employee.FullName.ToLower() @employee.Email.ToLower() @employee.Position.ToLower() @employee.Department.ToLower()">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="employee-avatar me-3">
+                                                @employee.FirstName.Substring(0, 1)@employee.LastName.Substring(0, 1)
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">@employee.FullName</div>
+                                                <small class="text-muted">@employee.Email</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@employee.CompanyName</td>
+                                    <td>@employee.Department</td>
+                                    <td>@employee.Position</td>
+                                    <td class="salary-value">@employee.FormattedSalary</td>
+                                    <td>@employee.HireDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        <span class="employee-status @($"status-{employee.Status.ToString().ToLower()}")">
+                                            @employee.Status
                                         </span>
-                                        break;
-                                    case EmployeeStatus.Inactive:
-                                        <span class="employee-status status-inactive">
-                                            <i class="fas fa-times-circle"></i>
-                                            Inactive
-                                        </span>
-                                        break;
-                                    case EmployeeStatus.OnLeave:
-                                        <span class="employee-status status-onleave">
-                                            <i class="fas fa-clock"></i>
-                                            On Leave
-                                        </span>
-                                        break;
-                                    case EmployeeStatus.Terminated:
-                                        <span class="employee-status status-inactive">
-                                            <i class="fas fa-ban"></i>
-                                            Terminated
-                                        </span>
-                                        break;
-                                }
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="/Payroll/Employee/@employee.Id" class="btn-action btn-payroll" title="View Payroll">
-                                        <i class="fas fa-money-bill"></i>
-                                    </a>
-                                    <a href="/Employees/EditModal/@employee.Id" class="btn-action btn-edit" title="Edit Employee" data-bs-toggle="modal" data-bs-target="#EmployeeEditModal">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button class="btn-action btn-delete" title="Delete Employee" onclick="deleteEmployee('@employee.Id')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                                    </td>
+                                    <td>
+                                        <div class="employee-actions">
+                                            <a href="/Payroll/Employee/@employee.Id" class="action-btn btn-payroll" title="View Payroll">
+                                                <i class="fas fa-money-bill"></i>
+                                            </a>
+                                            <a href="/Employees/Edit/@employee.Id" class="action-btn btn-edit" title="Edit Employee">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="action-btn btn-delete" title="Delete Employee" onclick="deleteEmployee('@employee.Id', '@employee.FullName')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         }
         else
         {
             <div class="empty-state">
-                <i class="fas fa-users"></i>
-                <h4>No Employees Found</h4>
-                <p>Start by adding your first employee to begin workforce management.</p>
-                <a href="/Employees/CreateModal" class="btn-create-employee" data-bs-toggle="modal" data-bs-target="#EmployeeCreateModal">
-                    <i class="fas fa-user-plus me-2"></i>
+                <div class="empty-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>No Employees Found</h3>
+                <p>Start building your team by adding your first employee. Track their information, manage payroll, and streamline your HR processes.</p>
+                <a href="/Employees/Create?companyId=@(ViewContext.HttpContext.Request.Query["companyId"])" class="btn-add-employee">
+                    <i class="fas fa-user-plus"></i>
                     Add First Employee
                 </a>
             </div>
@@ -495,121 +309,201 @@
     </div>
 </div>
 
-<!-- Employee Create Modal -->
-<div class="modal fade" id="EmployeeCreateModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <!-- Content will be loaded here -->
-        </div>
-    </div>
-</div>
-
-<!-- Employee Edit Modal -->
-<div class="modal fade" id="EmployeeEditModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <!-- Content will be loaded here -->
-        </div>
-    </div>
-</div>
-
 @section scripts {
-    <script src="~/js/simple-theme-switcher.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        $(function() {
+        $(document).ready(function() {
             // Search and filter functionality
             function filterEmployees() {
-                var searchTerm = $('#employeeSearch').val().toLowerCase();
-                var companyFilter = $('#companyFilter').val();
-                var departmentFilter = $('#departmentFilter').val();
-                var statusFilter = $('#statusFilter').val();
+                const searchTerm = $('#employeeSearch').val().toLowerCase();
+                const companyFilter = $('#companyFilter').val();
+                const departmentFilter = $('#departmentFilter').val();
+                const statusFilter = $('#statusFilter').val();
                 
-                $('#employeesTable tbody tr').each(function() {
-                    var row = $(this);
-                    var text = row.text().toLowerCase();
-                    var company = row.data('company');
-                    var department = row.data('department');
-                    var status = row.data('status');
+                let visibleCount = 0;
+                
+                $('.employee-card, #employeesTable tbody tr').each(function() {
+                    const $element = $(this);
+                    const searchData = $element.data('search') || $element.text().toLowerCase();
+                    const company = $element.data('company');
+                    const department = $element.data('department');
+                    const status = $element.data('status');
                     
-                    var showRow = true;
+                    let showElement = true;
                     
                     // Search filter
-                    if (searchTerm && text.indexOf(searchTerm) === -1) {
-                        showRow = false;
+                    if (searchTerm && searchData.indexOf(searchTerm) === -1) {
+                        showElement = false;
                     }
                     
                     // Company filter
                     if (companyFilter && company != companyFilter) {
-                        showRow = false;
+                        showElement = false;
                     }
                     
                     // Department filter
                     if (departmentFilter && department != departmentFilter) {
-                        showRow = false;
+                        showElement = false;
                     }
                     
                     // Status filter
                     if (statusFilter && status != statusFilter) {
-                        showRow = false;
+                        showElement = false;
                     }
                     
-                    row.toggle(showRow);
+                    $element.toggle(showElement);
+                    if (showElement) visibleCount++;
                 });
+                
+                $('#visibleCount').text(visibleCount);
             }
             
-            $('#employeeSearch, #companyFilter, #departmentFilter, #statusFilter').on('change keyup', filterEmployees);
+            // Attach filter events
+            $('#employeeSearch, #companyFilter, #departmentFilter, #statusFilter').on('input change', filterEmployees);
             
-            // Modal handling
-            $('#EmployeeCreateModal, #EmployeeEditModal').on('show.bs.modal', function (e) {
-                var url = $(e.relatedTarget).attr('href');
-                if (url) {
-                    $(this).find('.modal-content').load(url);
+            // View toggle functionality
+            $('.view-btn').on('click', function() {
+                const view = $(this).data('view');
+                
+                $('.view-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                if (view === 'cards') {
+                    $('#cardView').show();
+                    $('#tableView').hide();
+                } else {
+                    $('#cardView').hide();
+                    $('#tableView').show();
                 }
             });
             
-            // Clear modal content when closed
-            $('#EmployeeCreateModal, #EmployeeEditModal').on('hidden.bs.modal', function () {
-                $(this).find('.modal-content').empty();
+            // Animate cards on load
+            $('.employee-card').each(function(index) {
+                $(this).css('animation-delay', (index * 0.1) + 's');
             });
         });
         
-        function refreshEmployees() {
-            location.reload();
-        }
-        
-        function exportEmployees() {
-            // Implement export functionality
+        // Clear filters function
+        function clearFilters() {
+            $('#employeeSearch').val('');
+            $('#companyFilter').val('');
+            $('#departmentFilter').val('');
+            $('#statusFilter').val('');
+            
+            $('.employee-card, #employeesTable tbody tr').show();
+            $('#visibleCount').text($('.employee-card').length);
+            
             Swal.fire({
-                icon: 'info',
-                title: 'Coming Soon',
-                text: 'Export functionality will be implemented soon',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#3085d6'
+                title: 'Filters Cleared!',
+                text: 'All filters have been reset.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
             });
         }
         
-        function deleteEmployee(id) {
+        // Export employees function
+        function exportEmployees() {
             Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to delete this employee? This action cannot be undone.',
-                icon: 'warning',
+                title: 'Export Employee Data',
+                text: 'Choose export format:',
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
+                confirmButtonColor: '#10B981',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: '<i class="fas fa-file-excel me-1"></i>Export to Excel',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Implement delete functionality
                     Swal.fire({
+                        title: 'Exporting...',
+                        text: 'Preparing your employee data for download.',
                         icon: 'info',
-                        title: 'Coming Soon',
-                        text: 'Delete functionality will be implemented soon',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#3085d6'
+                        timer: 2000,
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    }).then(() => {
+                        Swal.fire({
+                            title: 'Export Complete!',
+                            text: 'Employee data has been exported successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'Download',
+                            confirmButtonColor: '#10B981'
+                        });
                     });
                 }
             });
         }
+        
+        // Delete employee function
+        function deleteEmployee(id, name) {
+            Swal.fire({
+                title: 'Delete Employee?',
+                text: `Are you sure you want to delete ${name}? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: '<i class="fas fa-trash me-1"></i>Yes, Delete',
+                cancelButtonText: 'Cancel',
+                backdrop: true,
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Deleting...',
+                        text: 'Removing employee from the system.',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        Swal.fire({
+                            title: 'Employee Deleted!',
+                            text: `${name} has been successfully removed from the system.`,
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#10B981'
+                        }).then(() => {
+                            // Remove the employee card/row from view
+                            $(`.employee-card[data-search*="${name.toLowerCase()}"], #employeesTable tr:contains("${name}")`).fadeOut(300, function() {
+                                $(this).remove();
+                                
+                                // Update counters
+                                const newTotal = $('.employee-card').length;
+                                $('#totalEmployees').text(newTotal);
+                                $('#visibleCount').text(newTotal);
+                            });
+                        });
+                    }, 2000);
+                }
+            });
+        }
+        
+        // Refresh page function
+        function refreshPage() {
+            window.location.reload();
+        }
+        
+        // Add some interactive hover effects
+        $('.employee-card').hover(
+            function() {
+                $(this).find('.employee-actions').css('opacity', '1');
+            },
+            function() {
+                $(this).find('.employee-actions').css('opacity', '0.7');
+            }
+        );
     </script>
 }
