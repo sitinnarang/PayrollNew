@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PayrollPro.Companies;
 using PayrollPro.Employees;
 using PayrollPro.Permissions;
 using System;
@@ -12,11 +13,13 @@ namespace PayrollPro.Web.Pages;
 public class IndexModel : PayrollProPageModel
 {
     private readonly IEmployeeAppService _employeeAppService;
+    private readonly ICompanyAppService _companyAppService;
     private readonly IPermissionChecker _permissionChecker;
 
-    public IndexModel(IEmployeeAppService employeeAppService, IPermissionChecker permissionChecker)
+    public IndexModel(IEmployeeAppService employeeAppService, ICompanyAppService companyAppService, IPermissionChecker permissionChecker)
     {
         _employeeAppService = employeeAppService;
+        _companyAppService = companyAppService;
         _permissionChecker = permissionChecker;
     }
 
@@ -25,6 +28,9 @@ public class IndexModel : PayrollProPageModel
     public decimal MonthlyPayroll { get; set; }
     public int PendingTimesheets { get; set; }
     public bool IsAdmin { get; set; }
+    public PagedResultDto<CompanyDto>? Companies { get; set; }
+    public int TotalCompanies { get; set; }
+    public int ActiveCompanies { get; set; }
 
     public async Task OnGetAsync()
     {
@@ -38,6 +44,14 @@ public class IndexModel : PayrollProPageModel
             TotalEmployees = (int)allEmployees.TotalCount;
             ActiveEmployees = allEmployees.Items.Count(e => e.Status == PayrollPro.Employees.EmployeeStatus.Active);
 
+            // If admin, load all companies
+            if (IsAdmin)
+            {
+                Companies = await _companyAppService.GetListAsync(new PagedAndSortedResultRequestDto { MaxResultCount = 50 });
+                TotalCompanies = (int)Companies.TotalCount;
+                ActiveCompanies = Companies.Items.Count(c => c.IsActive);
+            }
+
             // Set sample data for other metrics (will be implemented later)
             MonthlyPayroll = 125400.00m;
             PendingTimesheets = 3;
@@ -50,6 +64,8 @@ public class IndexModel : PayrollProPageModel
             MonthlyPayroll = 125400.00m;
             PendingTimesheets = 3;
             IsAdmin = false;
+            TotalCompanies = 0;
+            ActiveCompanies = 0;
         }
     }
 }
