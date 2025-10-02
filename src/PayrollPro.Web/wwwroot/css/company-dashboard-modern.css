@@ -121,30 +121,33 @@
 
 /* Payroll Engine Section */
 .payroll-engine-section {
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    border-radius: 20px;
+    background: linear-gradient(135deg, #16A085 0%, #1ABC9C 100%);
+    border-radius: 16px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 8px 32px rgba(26, 188, 156, 0.15);
     color: white;
     position: relative;
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .payroll-engine-section::before {
     content: '';
     position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
     pointer-events: none;
 }
 
 .payroll-engine-header {
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
     position: relative;
@@ -152,12 +155,32 @@
 }
 
 .payroll-engine-header h3 {
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 600;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    color: white;
+}
+
+.payroll-engine-header .d-flex button {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.payroll-engine-header .d-flex button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .payroll-stats-grid {
@@ -203,26 +226,25 @@
 /* Action Buttons Grid */
 .action-buttons-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
     margin-bottom: 2rem;
 }
 
 .action-button {
     background: white;
-    border: none;
-    border-radius: 16px;
-    padding: 2rem;
-    text-align: center;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: left;
     transition: all 0.3s ease;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     color: var(--text-primary);
     text-decoration: none;
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 1rem;
-    min-height: 140px;
+    min-height: auto;
     position: relative;
     overflow: hidden;
 }
@@ -232,20 +254,22 @@
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    height: 4px;
+    width: 4px;
+    height: 100%;
     background: var(--primary-blue);
-    transform: scaleX(0);
+    transform: scaleY(0);
     transition: transform 0.3s ease;
+    transform-origin: bottom;
 }
 
 .action-button:hover::before {
-    transform: scaleX(1);
+    transform: scaleY(1);
 }
 
 .action-button:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-xl);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #D1D5DB;
     color: var(--text-primary);
     text-decoration: none;
 }
@@ -256,23 +280,46 @@
 .action-button.warning::before { background: var(--primary-orange); }
 
 .action-button .icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
-.action-button.success .icon { color: var(--primary-green); }
-.action-button.primary .icon { color: var(--primary-blue); }
-.action-button.info .icon { color: #06B6D4; }
-.action-button.warning .icon { color: var(--primary-orange); }
+.action-button.success .icon { 
+    color: white;
+    background: linear-gradient(135deg, var(--primary-green), #059669);
+}
+.action-button.primary .icon { 
+    color: white;
+    background: linear-gradient(135deg, var(--primary-blue), #1E40AF);
+}
+.action-button.info .icon { 
+    color: white;
+    background: linear-gradient(135deg, #06B6D4, #0891B2);
+}
+.action-button.warning .icon { 
+    color: white;
+    background: linear-gradient(135deg, var(--primary-orange), #D97706);
+}
+
+.action-button .content {
+    flex: 1;
+}
 
 .action-button h5 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
 }
 
 .action-button p {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     color: var(--text-secondary);
     margin: 0;
     line-height: 1.4;
