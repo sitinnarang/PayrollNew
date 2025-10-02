@@ -87,6 +87,50 @@ public class PayrollProMenuContributor : IMenuContributor
             )
         );
 
+        // Add Admin section (only visible to admins)
+        var adminMenu = new ApplicationMenuItem(
+            "PayrollPro.Admin",
+            "Administration",
+            icon: "fas fa-crown",
+            order: 2,
+            requiredPermissionName: PayrollProPermissions.Admin.Default
+        );
+
+        adminMenu.AddItem(
+            new ApplicationMenuItem(
+                "PayrollPro.Admin.Companies",
+                "All Companies",
+                url: "/Admin/Companies",
+                icon: "fas fa-building",
+                order: 1,
+                requiredPermissionName: PayrollProPermissions.Admin.ViewAllCompanies
+            )
+        );
+
+        adminMenu.AddItem(
+            new ApplicationMenuItem(
+                "PayrollPro.Admin.SystemSettings",
+                "System Settings",
+                url: "/Admin/Settings",
+                icon: "fas fa-cogs",
+                order: 2,
+                requiredPermissionName: PayrollProPermissions.Admin.Default
+            )
+        );
+
+        adminMenu.AddItem(
+            new ApplicationMenuItem(
+                "PayrollPro.Admin.UserManagement",
+                "User Management",
+                url: "/Admin/Users",
+                icon: "fas fa-users-cog",
+                order: 3,
+                requiredPermissionName: PayrollProPermissions.Admin.Default
+            )
+        );
+
+        context.Menu.AddItem(adminMenu);
+
         if (MultiTenancyConsts.IsEnabled)
         {
             administration.SetSubItemOrder(TenantManagementMenuNames.GroupName, 1);

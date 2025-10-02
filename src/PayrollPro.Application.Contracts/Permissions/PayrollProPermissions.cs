@@ -4,6 +4,23 @@ public static class PayrollProPermissions
 {
     public const string GroupName = "PayrollPro";
 
+    // Admin permissions
+    public static class Admin
+    {
+        public const string Default = GroupName + ".Admin";
+        public const string ManageAllCompanies = Default + ".ManageAllCompanies";
+        public const string ViewAllCompanies = Default + ".ViewAllCompanies";
+    }
+
+    public static class Companies
+    {
+        public const string Default = GroupName + ".Companies";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string ViewAll = Default + ".ViewAll";
+    }
+
     public static class Employees
     {
         public const string Default = GroupName + ".Employees";

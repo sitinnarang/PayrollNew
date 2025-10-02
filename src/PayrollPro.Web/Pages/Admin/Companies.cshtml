@@ -1,0 +1,332 @@
+@page "/Admin/Companies"
+@using Microsoft.AspNetCore.Authorization
+@using PayrollPro.Permissions
+@using PayrollPro.Companies
+@model PayrollPro.Web.Pages.Admin.CompaniesModel
+@attribute [Authorize(PayrollProPermissions.Admin.ViewAllCompanies)]
+
+@section styles {
+    <link rel="stylesheet" href="~/css/company-management.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-building text-primary"></i> Admin - All Companies
+            </h1>
+            <p class="text-muted">Manage all companies in the system</p>
+        </div>
+        @if (Model.CanManageAllCompanies)
+        {
+            <div class="btn-group">
+                <a href="/Companies/CreateCompany" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Company
+                </a>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#bulkActionsModal">
+                    <i class="fas fa-tasks"></i> Bulk Actions
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Companies</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCompanies</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-building fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Companies</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ActiveCompanies</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Employees</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalEmployees</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">This Month</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.NewCompaniesThisMonth</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-plus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-search"></i> Search & Filter
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="searchName">Company Name</label>
+                            <input type="text" class="form-control" name="searchName" id="searchName" 
+                                   value="@Model.SearchName" placeholder="Search by company name...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="searchCity">City</label>
+                            <input type="text" class="form-control" name="searchCity" id="searchCity" 
+                                   value="@Model.SearchCity" placeholder="Search by city...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="searchCountry">Country</label>
+                            <input type="text" class="form-control" name="searchCountry" id="searchCountry" 
+                                   value="@Model.SearchCountry" placeholder="Search by country...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Companies Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-table"></i> Companies (@Model.Companies.TotalCount)
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="companiesTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th><input type="checkbox" id="selectAll"></th>
+                            <th>Logo</th>
+                            <th>Company Name</th>
+                            <th>Code</th>
+                            <th>Location</th>
+                            <th>Contact</th>
+                            <th>Employees</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var company in Model.Companies.Items)
+                        {
+                            <tr>
+                                <td><input type="checkbox" name="selectedCompanies" value="@company.Id"></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(company.LogoUrl))
+                                    {
+                                        <img src="@company.LogoUrl" alt="@company.Name" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+                                            @company.Name.Substring(0, 1).ToUpper()
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>@company.Name</strong>
+                                        @if (!string.IsNullOrEmpty(company.Description))
+                                        {
+                                            <br><small class="text-muted">@company.Description</small>
+                                        }
+                                    </div>
+                                </td>
+                                <td><code>@company.Code</code></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(company.City))
+                                    {
+                                        <span>@company.City</span>
+                                        @if (!string.IsNullOrEmpty(company.Country))
+                                        {
+                                            <br><small class="text-muted">@company.Country</small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not specified</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(company.Email))
+                                    {
+                                        <a href="mailto:@company.Email" class="text-decoration-none">
+                                            <i class="fas fa-envelope"></i> @company.Email
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(company.Phone))
+                                    {
+                                        <br><i class="fas fa-phone"></i> @company.Phone
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">@company.EmployeeCount employees</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">Active</span>
+                                </td>
+                                <td>
+                                    <small>@company.CreationTime.ToString("MMM dd, yyyy")</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="/Companies/@company.Id" class="btn btn-sm btn-outline-primary" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if (Model.CanManageAllCompanies)
+                                        {
+                                            <a href="/Companies/Edit/@company.Id" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" 
+                                                    onclick="deleteCompany('@company.Id', '@company.Name')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                @if (Model.Companies.TotalCount == 0)
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-building text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted mt-3">No companies found</h5>
+                        <p class="text-muted">Start by creating your first company.</p>
+                        <a href="/Companies/CreateCompany" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Company
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.Companies.TotalCount > 0)
+            {
+                <nav aria-label="Companies pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <!-- Add pagination logic here -->
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable for better functionality
+            $('#companiesTable').DataTable({
+                "pageLength": 25,
+                "responsive": true,
+                "order": [[ 8, "desc" ]], // Sort by created date
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 1, 9] } // Disable sorting for checkbox, logo, and actions
+                ]
+            });
+
+            // Select all functionality
+            $('#selectAll').change(function() {
+                $('input[name="selectedCompanies"]').prop('checked', this.checked);
+            });
+
+            // Individual checkbox change
+            $('input[name="selectedCompanies"]').change(function() {
+                if (!this.checked) {
+                    $('#selectAll').prop('checked', false);
+                }
+            });
+        });
+
+        function deleteCompany(companyId, companyName) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete "${companyName}"? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Add delete logic here
+                    $.ajax({
+                        url: `/api/companies/${companyId}`,
+                        type: 'DELETE',
+                        success: function() {
+                            Swal.fire('Deleted!', 'Company has been deleted.', 'success')
+                                .then(() => location.reload());
+                        },
+                        error: function() {
+                            Swal.fire('Error!', 'Failed to delete company.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

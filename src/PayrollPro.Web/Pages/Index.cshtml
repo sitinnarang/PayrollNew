@@ -16,6 +16,46 @@
         <p>Welcome back! Here's what's happening with your payroll system.</p>
     </div>
 
+    <!-- Role-based Welcome Section -->
+    @if (Model.IsAdmin)
+    {
+        <!-- Admin Dashboard -->
+        <div class="admin-welcome-section mb-4">
+            <div class="alert alert-info border-left-info">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-1"><i class="fas fa-crown text-warning"></i> Admin Dashboard</h5>
+                        <p class="mb-0">You have administrative access to manage all companies and system settings.</p>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/Admin/Companies" class="btn btn-primary">
+                            <i class="fas fa-building"></i> Manage All Companies
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Non-Admin User Welcome -->
+        <div class="user-welcome-section mb-4">
+            <div class="alert alert-primary border-left-primary">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-1"><i class="fas fa-rocket text-primary"></i> Get Started</h5>
+                        <p class="mb-0">Ready to set up your company? Create your company profile to start managing payroll.</p>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/Companies/CreateCompany" class="btn btn-success btn-lg">
+                            <i class="fas fa-plus-circle"></i> Create New Company
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card border-left-primary">
