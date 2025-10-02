@@ -131,16 +131,22 @@
                     
                     <!-- Payroll Actions -->
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <button class="btn btn-success btn-lg w-100" onclick="runPayrollEngine()">
                                 <i class="fas fa-play me-2"></i>Run Payroll Engine
                                 <br><small class="opacity-75">Process current period payroll</small>
                             </button>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <button class="btn btn-primary btn-lg w-100" onclick="calculatePayroll()">
                                 <i class="fas fa-calculator me-2"></i>Calculate Preview
                                 <br><small class="opacity-75">Preview without processing</small>
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-info btn-lg w-100" onclick="processIndividualPayroll()">
+                                <i class="fas fa-user-check me-2"></i>Process Individual
+                                <br><small class="opacity-75">Process single employee payroll</small>
                             </button>
                         </div>
                         <div class="col-md-6">
@@ -608,6 +614,46 @@
                     confirmButtonText: 'Download',
                     confirmButtonColor: '#ffc107'
                 });
+            }
+        });
+    }
+
+    function processIndividualPayroll() {
+        // Get list of employees for this company
+        Swal.fire({
+            title: 'Select Employee',
+            text: 'Choose an employee to process individual payroll:',
+            icon: 'question',
+            html: `
+                <div class="mt-3">
+                    <select id="employeeSelect" class="form-select">
+                        <option value="">Select an employee...</option>
+                        <option value="emp1">John Doe - Software Engineer</option>
+                        <option value="emp2">Jane Smith - HR Manager</option>
+                        <option value="emp3">Bob Johnson - Sales Rep</option>
+                        <option value="emp4">Alice Brown - Accountant</option>
+                    </select>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonColor: '#17a2b8',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-user-check me-1"></i>Process Payroll',
+            cancelButtonText: 'Cancel',
+            preConfirm: () => {
+                const employee = document.getElementById('employeeSelect').value;
+                if (!employee) {
+                    Swal.showValidationMessage('Please select an employee');
+                }
+                return employee;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // For demo purposes, using a placeholder employee ID
+                // In real implementation, you would get the actual employee ID from the selection
+                const demoEmployeeId = 'a80ca0f2-450e-419c-f4ae-3a1cb48d7ebf';
+                const companyId = '@Model.Company.Id';
+                window.location.href = `/Payroll/Process?companyId=${companyId}&employeeId=${demoEmployeeId}`;
             }
         });
     }

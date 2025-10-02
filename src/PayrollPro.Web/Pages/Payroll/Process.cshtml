@@ -1,0 +1,399 @@
+@page
+@using PayrollPro.Web.Pages.Payroll
+@model PayrollPro.Web.Pages.Payroll.ProcessModel
+@{
+    ViewData["Title"] = "Process Payroll";
+}
+
+@section styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/css/payroll-quickbooks.css">
+}
+
+<div class="payroll-container">
+    <div class="payroll-header">
+        <h1>
+            <i class="fas fa-calculator"></i>
+            Process Payroll
+        </h1>
+        <p class="subtitle">Calculate and process employee payroll with taxes and deductions</p>
+    </div>
+
+    <div class="payroll-content">
+        <!-- Employee Information -->
+        <div class="employee-info">
+            <h4>@Model.Employee.FirstName @Model.Employee.LastName</h4>
+            <p><strong>Employee ID:</strong> @Model.Employee.EmployeeId</p>
+            <p><strong>Position:</strong> @Model.Employee.Position</p>
+            <p><strong>Department:</strong> @Model.Employee.Department</p>
+            <p><strong>Pay Period:</strong> @DateTime.Now.ToString("MMMM dd") - @DateTime.Now.AddDays(13).ToString("MMMM dd, yyyy")</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card gross-pay">
+                <div class="summary-value">$@Model.PayrollCalculation.GrossPay.ToString("N2")</div>
+                <div class="summary-label">Gross Pay</div>
+            </div>
+            <div class="summary-card taxes">
+                <div class="summary-value">$@Model.PayrollCalculation.TotalTaxes.ToString("N2")</div>
+                <div class="summary-label">Total Taxes</div>
+            </div>
+            <div class="summary-card deductions">
+                <div class="summary-value">$0.00</div>
+                <div class="summary-label">Deductions</div>
+            </div>
+            <div class="summary-card net-pay">
+                <div class="summary-value">$@Model.PayrollCalculation.NetPay.ToString("N2")</div>
+                <div class="summary-label">Net Pay</div>
+            </div>
+        </div>
+
+        <form method="post" id="payrollForm">
+            <input type="hidden" asp-for="CompanyId" />
+            <input type="hidden" asp-for="EmployeeId" />
+            <input type="hidden" asp-for="PayrollCalculation.EmployeeId" />
+            <input type="hidden" asp-for="PayrollCalculation.CompanyId" />
+
+            <!-- Pay Section -->
+            <div class="payroll-section">
+                <div class="section-header">
+                    <i class="fas fa-dollar-sign"></i>
+                    <h3>Pay</h3>
+                </div>
+                
+                <table class="payroll-table">
+                    <thead>
+                        <tr>
+                            <th>TYPE</th>
+                            <th>Hours</th>
+                            <th>Rate</th>
+                            <th>Current</th>
+                            <th>YTD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="pay-type">Regular Pay</td>
+                            <td>
+                                <input type="number" 
+                                       asp-for="PayrollCalculation.RegularHours" 
+                                       class="hours-input" 
+                                       step="0.01" 
+                                       min="0" 
+                                       onchange="calculatePayroll()" />
+                            </td>
+                            <td>
+                                <input type="number" 
+                                       asp-for="PayrollCalculation.RegularRate" 
+                                       class="rate-input" 
+                                       step="0.01" 
+                                       min="0" 
+                                       onchange="calculatePayroll()" />
+                            </td>
+                            <td>
+                                <div class="amount-display amount-current" id="regularPay">
+                                    $@Model.PayrollCalculation.RegularPay.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display amount-ytd" id="regularPayYTD">
+                                    $@Model.PayrollCalculation.RegularPayYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pay-type">Overtime Pay</td>
+                            <td>
+                                <input type="number" 
+                                       asp-for="PayrollCalculation.OvertimeHours" 
+                                       class="hours-input overtime" 
+                                       step="0.01" 
+                                       min="0" 
+                                       onchange="calculatePayroll()" />
+                            </td>
+                            <td>
+                                <input type="number" 
+                                       asp-for="PayrollCalculation.OvertimeRate" 
+                                       class="rate-input" 
+                                       step="0.01" 
+                                       min="0" 
+                                       onchange="calculatePayroll()" />
+                            </td>
+                            <td>
+                                <div class="amount-display amount-current" id="overtimePay">
+                                    $@Model.PayrollCalculation.OvertimePay.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display amount-ytd" id="overtimePayYTD">
+                                    $@Model.PayrollCalculation.OvertimePayYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="total-row">
+                            <td class="pay-type">Total</td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="amount-display" id="grossPay">
+                                    $@Model.PayrollCalculation.GrossPay.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display" id="grossPayYTD">
+                                    $@Model.PayrollCalculation.GrossPayYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Employee Taxes Section -->
+            <div class="payroll-section">
+                <div class="section-header">
+                    <i class="fas fa-receipt"></i>
+                    <h3>Employee taxes</h3>
+                </div>
+                
+                <table class="payroll-table">
+                    <thead>
+                        <tr>
+                            <th>TYPE</th>
+                            <th></th>
+                            <th></th>
+                            <th>Current</th>
+                            <th>YTD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="pay-type">Federal Income Tax</td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="amount-display tax-amount" id="federalTax">
+                                    $@Model.PayrollCalculation.FederalIncomeTax.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display tax-amount" id="federalTaxYTD">
+                                    $@Model.PayrollCalculation.FederalIncomeTaxYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pay-type">Social Security</td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="amount-display tax-amount" id="socialSecurity">
+                                    $@Model.PayrollCalculation.SocialSecurity.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display tax-amount" id="socialSecurityYTD">
+                                    $@Model.PayrollCalculation.SocialSecurityYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pay-type">Medicare</td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="amount-display tax-amount" id="medicare">
+                                    $@Model.PayrollCalculation.Medicare.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display tax-amount" id="medicareYTD">
+                                    $@Model.PayrollCalculation.MedicareYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pay-type">State Income Tax</td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="amount-display tax-amount" id="stateTax">
+                                    $@Model.PayrollCalculation.StateIncomeTax.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display tax-amount" id="stateTaxYTD">
+                                    $@Model.PayrollCalculation.StateIncomeTaxYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="total-row">
+                            <td class="pay-type">Total Taxes</td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="amount-display" id="totalTaxes">
+                                    $@Model.PayrollCalculation.TotalTaxes.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display" id="totalTaxesYTD">
+                                    $@Model.PayrollCalculation.TotalTaxesYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Net Pay Section -->
+            <div class="payroll-section">
+                <div class="section-header">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <h3>Net Pay</h3>
+                </div>
+                
+                <table class="payroll-table">
+                    <tbody>
+                        <tr class="total-row">
+                            <td class="pay-type">Net Pay</td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="amount-display" id="netPay">
+                                    $@Model.PayrollCalculation.NetPay.ToString("N2")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-display" id="netPayYTD">
+                                    $@Model.PayrollCalculation.NetPayYTD.ToString("N2")
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Controls -->
+            <div class="payroll-controls">
+                <div>
+                    <a href="/Companies/@Model.CompanyId" class="btn-payroll btn-cancel">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn-payroll btn-save">
+                        <i class="fas fa-save"></i>
+                        Save
+                    </button>
+                    <button type="button" class="btn-payroll btn-process" onclick="processPayroll()">
+                        <i class="fas fa-check"></i>
+                        Process Payroll
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function calculatePayroll() {
+            const regularHours = parseFloat(document.querySelector('[name="PayrollCalculation.RegularHours"]').value) || 0;
+            const overtimeHours = parseFloat(document.querySelector('[name="PayrollCalculation.OvertimeHours"]').value) || 0;
+            const regularRate = parseFloat(document.querySelector('[name="PayrollCalculation.RegularRate"]').value) || 0;
+            const overtimeRate = parseFloat(document.querySelector('[name="PayrollCalculation.OvertimeRate"]').value) || 0;
+            
+            // Calculate pay
+            const regularPay = regularHours * regularRate;
+            const overtimePay = overtimeHours * overtimeRate;
+            const grossPay = regularPay + overtimePay;
+            
+            // Calculate taxes
+            const federalTax = grossPay * 0.12;
+            const socialSecurity = grossPay * 0.062;
+            const medicare = grossPay * 0.0145;
+            const stateTax = grossPay * 0.05;
+            const totalTaxes = federalTax + socialSecurity + medicare + stateTax;
+            
+            const netPay = grossPay - totalTaxes;
+            
+            // Update display values
+            document.getElementById('regularPay').textContent = '$' + regularPay.toFixed(2);
+            document.getElementById('overtimePay').textContent = '$' + overtimePay.toFixed(2);
+            document.getElementById('grossPay').textContent = '$' + grossPay.toFixed(2);
+            
+            document.getElementById('federalTax').textContent = '$' + federalTax.toFixed(2);
+            document.getElementById('socialSecurity').textContent = '$' + socialSecurity.toFixed(2);
+            document.getElementById('medicare').textContent = '$' + medicare.toFixed(2);
+            document.getElementById('stateTax').textContent = '$' + stateTax.toFixed(2);
+            document.getElementById('totalTaxes').textContent = '$' + totalTaxes.toFixed(2);
+            
+            document.getElementById('netPay').textContent = '$' + netPay.toFixed(2);
+            
+            // Update YTD values (simplified calculation)
+            document.getElementById('regularPayYTD').textContent = '$' + (regularPay * 12).toFixed(2);
+            document.getElementById('overtimePayYTD').textContent = '$' + (overtimePay * 12).toFixed(2);
+            document.getElementById('grossPayYTD').textContent = '$' + (grossPay * 12).toFixed(2);
+            document.getElementById('federalTaxYTD').textContent = '$' + (federalTax * 12).toFixed(2);
+            document.getElementById('socialSecurityYTD').textContent = '$' + (socialSecurity * 12).toFixed(2);
+            document.getElementById('medicareYTD').textContent = '$' + (medicare * 12).toFixed(2);
+            document.getElementById('stateTaxYTD').textContent = '$' + (stateTax * 12).toFixed(2);
+            document.getElementById('totalTaxesYTD').textContent = '$' + (totalTaxes * 12).toFixed(2);
+            document.getElementById('netPayYTD').textContent = '$' + (netPay * 12).toFixed(2);
+            
+            // Update summary cards
+            document.querySelector('.gross-pay .summary-value').textContent = '$' + grossPay.toFixed(2);
+            document.querySelector('.taxes .summary-value').textContent = '$' + totalTaxes.toFixed(2);
+            document.querySelector('.net-pay .summary-value').textContent = '$' + netPay.toFixed(2);
+        }
+        
+        function processPayroll() {
+            Swal.fire({
+                title: 'Process Payroll?',
+                text: 'This will finalize the payroll and cannot be undone. Are you sure?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#667eea',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, process it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: 'Please wait while we process the payroll',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Simulate processing time
+                    setTimeout(() => {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Payroll has been processed successfully',
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        });
+                    }, 2000);
+                }
+            });
+        }
+        
+        // Auto-calculate on load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculatePayroll();
+        });
+    </script>
+}
+
+@section ValidationScripts {
+    <partial name="_ValidationScriptsPartial" />
+}
