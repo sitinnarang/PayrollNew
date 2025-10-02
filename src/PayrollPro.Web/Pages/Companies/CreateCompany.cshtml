@@ -18,6 +18,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- Custom Styles -->
     <style>
         * {
@@ -230,6 +232,56 @@
             border-color: #4facfe;
             box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
             outline: none;
+        }
+        
+        .form-control.is-valid {
+            border-color: #28a745;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.5.55 3.4-3.77-.5-.55z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .form-control.is-valid:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
+        
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 2.4 2.4M8.2 4.6l-2.4 2.4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+        
+        .swal-error-toast {
+            border-left: 4px solid #dc3545 !important;
+        }
+        
+        .swal-error-title {
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+        }
+        
+        .swal-wide {
+            width: 600px !important;
+        }
+        
+        .progress {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background-color: #4facfe;
         }
         
         .form-section h5 {
@@ -626,6 +678,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         let currentStep = 1;
@@ -653,7 +706,7 @@
                 content.classList.remove('active');
             });
             
-            document.querySelector(`.step-content[data-step="${step}"]`).classList.add('active');
+            document.querySelector('.step-content[data-step="' + step + '"]').classList.add('active');
             updateProgress();
         }
         
@@ -661,6 +714,11 @@
             if (currentStep === 1) {
                 // Validate first step (user account + basic company info)
                 if (!validateStep1()) {
+                    return;
+                }
+            } else if (currentStep === 2) {
+                // Validate second step (contact & location)
+                if (!validateStep2()) {
                     return;
                 }
             }
@@ -671,60 +729,251 @@
             }
         }
         
-        function validateStep1() {
+        function validateStep2() {
             let isValid = true;
+            let firstError = null;
             
-            // Clear previous errors
-            document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
+            // Clear previous styling
+            document.querySelectorAll('[data-step="2"] .form-control').forEach(el => {
+                el.classList.remove('is-invalid', 'is-valid');
+            });
             
-            // Validate username
-            const username = document.querySelector('input[name="UserRegistration.Username"]').value.trim();
-            if (!username) {
-                alert('Username is required');
+            // Validate business address (required)
+            const addressInput = document.querySelector('input[name="Company.Address"], textarea[name="Company.Address"]');
+            const address = addressInput.value.trim();
+            if (!address) {
+                addressInput.classList.add('is-invalid');
+                if (!firstError) firstError = addressInput;
+                showValidationError('Business Address Required', 'Please enter your complete business address for legal documentation', 'map-marker-alt');
                 isValid = false;
-            } else if (username.length < 3) {
-                alert('Username must be at least 3 characters');
+            } else if (address.length < 10) {
+                addressInput.classList.add('is-invalid');
+                if (!firstError) firstError = addressInput;
+                showValidationError('Address Too Short', 'Please provide a complete business address with street, city, and postal code', 'map-marker-alt');
                 isValid = false;
+            } else {
+                addressInput.classList.add('is-valid');
             }
             
-            // Validate email
-            const email = document.querySelector('input[name="UserRegistration.Email"]').value.trim();
-            if (!email) {
-                alert('Email is required');
-                isValid = false;
-            } else if (!email.includes('@@') || !email.includes('.')) {
-                alert('Please enter a valid email address');
-                isValid = false;
+            // Validate email (optional but if provided, must be valid)
+            const businessEmailInput = document.querySelector('input[name="Company.Email"]');
+            const businessEmail = businessEmailInput.value.trim();
+            if (businessEmail) {
+                // Simple email validation without regex
+                if (!businessEmail.includes('@@') || !businessEmail.includes('.') || businessEmail.length < 5) {
+                    businessEmailInput.classList.add('is-invalid');
+                    if (!firstError) firstError = businessEmailInput;
+                    showValidationError('Invalid Business Email', 'Please enter a valid email address for your business', 'envelope');
+                    isValid = false;
+                } else {
+                    businessEmailInput.classList.add('is-valid');
+                }
             }
             
-            // Validate password
-            const password = document.querySelector('input[name="UserRegistration.Password"]').value;
-            if (!password) {
-                alert('Password is required');
-                isValid = false;
-            } else if (password.length < 6) {
-                alert('Password must be at least 6 characters');
-                isValid = false;
+            // Validate phone (optional but if provided, basic format check)
+            const phoneInput = document.querySelector('input[name="Company.Phone"]');
+            const phone = phoneInput.value.trim();
+            if (phone) {
+                // Basic phone validation - should contain numbers and be reasonable length
+                if (phone.length < 10) {
+                    phoneInput.classList.add('is-invalid');
+                    if (!firstError) firstError = phoneInput;
+                    showValidationError('Invalid Phone Format', 'Please enter a valid phone number (e.g., +1 (555) 123-4567)', 'phone');
+                    isValid = false;
+                } else {
+                    phoneInput.classList.add('is-valid');
+                }
             }
             
-            // Validate confirm password
-            const confirmPassword = document.querySelector('input[name="UserRegistration.ConfirmPassword"]').value;
-            if (!confirmPassword) {
-                alert('Please confirm your password');
-                isValid = false;
-            } else if (password !== confirmPassword) {
-                alert('Passwords do not match');
-                isValid = false;
-            }
-            
-            // Validate company name
-            const companyName = document.querySelector('input[name="Company.Name"]').value.trim();
-            if (!companyName) {
-                alert('Company name is required');
-                isValid = false;
+            // Focus on first error if validation failed
+            if (!isValid && firstError) {
+                firstError.focus();
+            } else if (isValid) {
+                // Show success message when all fields are valid
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Step 2 Complete!',
+                    text: 'Contact and location information is valid. Ready for final step.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#d4edda',
+                    color: '#155724'
+                });
             }
             
             return isValid;
+        }
+        
+        function validateStep1() {
+            let isValid = true;
+            let firstError = null;
+            
+            // Clear previous errors and styling
+            document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
+            document.querySelectorAll('.form-control').forEach(el => {
+                el.classList.remove('is-invalid', 'is-valid');
+            });
+            
+            // Validate username
+            const usernameInput = document.querySelector('input[name="UserRegistration.Username"]');
+            const username = usernameInput.value.trim();
+            if (!username) {
+                usernameInput.classList.add('is-invalid');
+                if (!firstError) firstError = usernameInput;
+                showValidationError('Username Required', 'Please enter a username for your administrator account', 'user');
+                isValid = false;
+            } else if (username.length < 3) {
+                usernameInput.classList.add('is-invalid');
+                if (!firstError) firstError = usernameInput;
+                showValidationError('Username Too Short', 'Username must be at least 3 characters long for security', 'user');
+                isValid = false;
+            } else {
+                usernameInput.classList.add('is-valid');
+            }
+            
+            // Validate email
+            const emailInput = document.querySelector('input[name="UserRegistration.Email"]');
+            const email = emailInput.value.trim();
+            const emailRegex = /^@@[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            if (!email) {
+                emailInput.classList.add('is-invalid');
+                if (!firstError) firstError = emailInput;
+                showValidationError('Email Required', 'Please enter your email address for account verification', 'envelope');
+                isValid = false;
+            } else if (!emailRegex.test(email)) {
+                emailInput.classList.add('is-invalid');
+                if (!firstError) firstError = emailInput;
+                showValidationError('Invalid Email Format', 'Please enter a valid email address (e.g., admin@company.com)', 'envelope');
+                isValid = false;
+            } else {
+                emailInput.classList.add('is-valid');
+            }
+            
+            // Validate password
+            const passwordInput = document.querySelector('input[name="UserRegistration.Password"]');
+            const password = passwordInput.value;
+            if (!password) {
+                passwordInput.classList.add('is-invalid');
+                if (!firstError) firstError = passwordInput;
+                showValidationError('Password Required', 'Please create a secure password for your account', 'lock');
+                isValid = false;
+            } else if (password.length < 6) {
+                passwordInput.classList.add('is-invalid');
+                if (!firstError) firstError = passwordInput;
+                showValidationError('Password Too Short', 'Password must be at least 6 characters for security. Consider adding numbers and symbols.', 'lock');
+                isValid = false;
+            } else {
+                passwordInput.classList.add('is-valid');
+            }
+            
+            // Validate confirm password
+            const confirmPasswordInput = document.querySelector('input[name="UserRegistration.ConfirmPassword"]');
+            const confirmPassword = confirmPasswordInput.value;
+            if (!confirmPassword) {
+                confirmPasswordInput.classList.add('is-invalid');
+                if (!firstError) firstError = confirmPasswordInput;
+                showValidationError('Confirm Password Required', 'Please confirm your password to ensure accuracy', 'lock');
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                confirmPasswordInput.classList.add('is-invalid');
+                if (!firstError) firstError = confirmPasswordInput;
+                showValidationError('Password Mismatch', 'The passwords you entered do not match. Please try again.', 'exclamation-triangle');
+                isValid = false;
+            } else if (password) {
+                confirmPasswordInput.classList.add('is-valid');
+            }
+            
+            // Validate company name
+            const companyNameInput = document.querySelector('input[name="Company.Name"]');
+            const companyName = companyNameInput.value.trim();
+            if (!companyName) {
+                companyNameInput.classList.add('is-invalid');
+                if (!firstError) firstError = companyNameInput;
+                showValidationError('Company Name Required', 'Please enter your company name as it will appear on official documents', 'building');
+                isValid = false;
+            } else if (companyName.length < 2) {
+                companyNameInput.classList.add('is-invalid');
+                if (!firstError) firstError = companyNameInput;
+                showValidationError('Company Name Too Short', 'Company name must be at least 2 characters long', 'building');
+                isValid = false;
+            } else {
+                companyNameInput.classList.add('is-valid');
+            }
+            
+            // Validate established date
+            const establishedDateInput = document.querySelector('input[name="Company.EstablishedDate"]');
+            const establishedDate = establishedDateInput.value;
+            if (!establishedDate) {
+                establishedDateInput.classList.add('is-invalid');
+                if (!firstError) firstError = establishedDateInput;
+                showValidationError('Establishment Date Required', 'Please enter when your company was established', 'calendar-alt');
+                isValid = false;
+            } else {
+                const selectedDate = new Date(establishedDate);
+                const today = new Date();
+                const hundredYearsAgo = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+                
+                if (selectedDate > today) {
+                    establishedDateInput.classList.add('is-invalid');
+                    if (!firstError) firstError = establishedDateInput;
+                    showValidationError('Invalid Date', 'Company establishment date cannot be in the future', 'calendar-alt');
+                    isValid = false;
+                } else if (selectedDate < hundredYearsAgo) {
+                    establishedDateInput.classList.add('is-invalid');
+                    if (!firstError) firstError = establishedDateInput;
+                    showValidationError('Invalid Date', 'Please enter a valid establishment date within the last 100 years', 'calendar-alt');
+                    isValid = false;
+                } else {
+                    establishedDateInput.classList.add('is-valid');
+                }
+            }
+            
+            // Focus on first error if validation failed
+            if (!isValid && firstError) {
+                firstError.focus();
+            } else if (isValid) {
+                // Show success message when all fields are valid
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Step 1 Complete!',
+                    text: 'All account and company information is valid. Ready to proceed.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#d4edda',
+                    color: '#155724'
+                });
+            }
+            
+            return isValid;
+        }
+        
+        function showValidationError(title, message, iconType = 'exclamation-triangle') {
+            Swal.fire({
+                icon: 'error',
+                title: '<i class="fas fa-' + iconType + ' me-2"></i>' + title,
+                html: '<div class="text-start">' +
+                    '<p class="mb-2">' + message + '</p>' +
+                    '<small class="text-muted">' +
+                        '<i class="fas fa-lightbulb me-1"></i>' +
+                        'Please correct this field and try again.' +
+                    '</small>' +
+                '</div>',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                background: '#f8d7da',
+                color: '#721c24',
+                customClass: {
+                    popup: 'swal-error-toast',
+                    title: 'swal-error-title'
+                }
+            });
         }
         
         function prevStep() {
@@ -740,16 +989,185 @@
             preview.textContent = e.target.value || 'Your Company Name';
         });
         
+        // Add real-time validation feedback
+        function setupRealTimeValidation() {
+            // Username validation
+            const usernameInput = document.querySelector('input[name="UserRegistration.Username"]');
+            usernameInput.addEventListener('blur', function() {
+                const username = this.value.trim();
+                this.classList.remove('is-invalid', 'is-valid');
+                
+                if (username && username.length >= 3) {
+                    this.classList.add('is-valid');
+                }
+            });
+            
+            // Email validation
+            const emailInput = document.querySelector('input[name="UserRegistration.Email"]');
+            emailInput.addEventListener('blur', function() {
+                const email = this.value.trim();
+                this.classList.remove('is-invalid', 'is-valid');
+                
+                if (email && email.includes('@@') && email.includes('.') && email.length >= 5) {
+                    this.classList.add('is-valid');
+                }
+            });
+            
+            // Password validation
+            const passwordInput = document.querySelector('input[name="UserRegistration.Password"]');
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                this.classList.remove('is-invalid', 'is-valid');
+                
+                if (password.length >= 6) {
+                    this.classList.add('is-valid');
+                    
+                    // Also validate confirm password if it has a value
+                    const confirmPasswordInput = document.querySelector('input[name="UserRegistration.ConfirmPassword"]');
+                    if (confirmPasswordInput.value && confirmPasswordInput.value === password) {
+                        confirmPasswordInput.classList.remove('is-invalid');
+                        confirmPasswordInput.classList.add('is-valid');
+                    }
+                }
+            });
+            
+            // Confirm password validation
+            const confirmPasswordInput = document.querySelector('input[name="UserRegistration.ConfirmPassword"]');
+            confirmPasswordInput.addEventListener('input', function() {
+                const password = document.querySelector('input[name="UserRegistration.Password"]').value;
+                this.classList.remove('is-invalid', 'is-valid');
+                
+                if (this.value && this.value === password) {
+                    this.classList.add('is-valid');
+                }
+            });
+            
+            // Company name validation
+            const companyNameInput = document.querySelector('input[name="Company.Name"]');
+            companyNameInput.addEventListener('blur', function() {
+                const companyName = this.value.trim();
+                this.classList.remove('is-invalid', 'is-valid');
+                
+                if (companyName && companyName.length >= 2) {
+                    this.classList.add('is-valid');
+                }
+            });
+            
+            // Business email validation (Step 2)
+            const businessEmailInput = document.querySelector('input[name="Company.Email"]');
+            if (businessEmailInput) {
+                businessEmailInput.addEventListener('blur', function() {
+                    const email = this.value.trim();
+                    this.classList.remove('is-invalid', 'is-valid');
+                    
+                    if (email) {
+                        if (email.includes('@@') && email.includes('.') && email.length >= 5) {
+                            this.classList.add('is-valid');
+                        } else {
+                            this.classList.add('is-invalid');
+                        }
+                    }
+                });
+            }
+            
+            // Show helpful hints on focus
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.addEventListener('focus', function() {
+                    const fieldName = this.getAttribute('name');
+                    let hint = '';
+                    
+                    switch(fieldName) {
+                        case 'UserRegistration.Username':
+                            hint = 'Username should be unique and contain only letters, numbers, and underscores';
+                            break;
+                        case 'UserRegistration.Email':
+                            hint = 'This email will be used for login and important notifications';
+                            break;
+                        case 'UserRegistration.Password':
+                            hint = 'Create a strong password with at least 6 characters';
+                            break;
+                        case 'Company.Name':
+                            hint = 'Enter your company name as it appears on official documents';
+                            break;
+                        case 'Company.Email':
+                            hint = 'Business email for customer communication and invoices';
+                            break;
+                        case 'Company.Phone':
+                            hint = 'Include country code for international accessibility';
+                            break;
+                    }
+                    
+                    if (hint) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Field Information',
+                            text: hint,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            background: '#d1ecf1',
+                            color: '#0c5460'
+                        });
+                    }
+                });
+            });
+        }
+        
         // Form submission
         document.getElementById('companyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Final validation before submission
+            if (!validateStep1() || !validateStep2()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Required',
+                    text: 'Please complete all required fields correctly before submitting.',
+                    confirmButtonText: 'Review Form',
+                    confirmButtonColor: '#ffc107'
+                });
+                return;
+            }
+            
             const formData = new FormData(this);
             const createButton = document.getElementById('createButton');
             
-            // Show loading state
+            // Show loading state with progress
+            let progress = 0;
             createButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Creating Company...';
             createButton.disabled = true;
+            
+            // Show progress notification
+            Swal.fire({
+                title: 'Creating Your Company...',
+                html: 
+                    '<div class="text-center">' +
+                        '<div class="spinner-border text-primary mb-3" role="status">' +
+                            '<span class="visually-hidden">Loading...</span>' +
+                        '</div>' +
+                        '<p class="mb-2">Setting up your account and company profile</p>' +
+                        '<div class="progress">' +
+                            '<div class="progress-bar progress-bar-striped progress-bar-animated" ' +
+                                 'role="progressbar" style="width: 0%" id="submitProgress"></div>' +
+                        '</div>' +
+                    '</div>',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                background: '#f8f9fa'
+            });
+            
+            // Simulate progress
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                const progressBar = document.getElementById('submitProgress');
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                if (progress >= 90) {
+                    clearInterval(progressInterval);
+                }
+            }, 200);
             
             fetch(window.location.pathname, {
                 method: 'POST',
@@ -757,19 +1175,91 @@
             })
             .then(response => response.json())
             .then(data => {
+                clearInterval(progressInterval);
+                
                 if (data.success) {
-                    // Show success modal
-                    const modal = new bootstrap.Modal(document.getElementById('successModal'));
-                    modal.show();
+                    // Show success notification
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Company Created Successfully!',
+                        html: 
+                            '<div class="text-center">' +
+                                '<div class="mb-3">' +
+                                    '<i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>' +
+                                '</div>' +
+                                '<p class="mb-3">Your account has been created and you can now start managing your payroll.</p>' +
+                                '<div class="alert alert-success text-start">' +
+                                    '<h6 class="alert-heading">' +
+                                        '<i class="fas fa-info-circle me-2"></i>What\'s Next?' +
+                                    '</h6>' +
+                                    '<ul class="mb-0">' +
+                                        '<li>Access your company dashboard</li>' +
+                                        '<li>Add employees to your system</li>' +
+                                        '<li>Set up payroll schedules</li>' +
+                                        '<li>Configure company settings</li>' +
+                                    '</ul>' +
+                                '</div>' +
+                            '</div>',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Continue to Dashboard',
+                        confirmButtonColor: '#28a745',
+                        allowOutsideClick: false,
+                        customClass: {
+                            popup: 'swal-wide'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/';
+                        }
+                    });
                 } else {
-                    alert('Error creating company: ' + (data.error || 'Unknown error'));
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Creation Failed',
+                        html: 
+                            '<div class="text-start">' +
+                                '<p class="mb-2">We encountered an error while creating your company:</p>' +
+                                '<div class="alert alert-danger">' +
+                                    '<strong>Error:</strong> ' + (data.error || 'Unknown error occurred') +
+                                '</div>' +
+                                '<p class="mb-0">' +
+                                    '<small class="text-muted">' +
+                                        '<i class="fas fa-lightbulb me-1"></i>' +
+                                        'Please check your information and try again. If the problem persists, contact support.' +
+                                    '</small>' +
+                                '</p>' +
+                            '</div>',
+                        confirmButtonText: 'Try Again',
+                        confirmButtonColor: '#dc3545'
+                    });
                     createButton.innerHTML = '<i class="fas fa-check me-2"></i> Create Company';
                     createButton.disabled = false;
                 }
             })
             .catch(error => {
+                clearInterval(progressInterval);
                 console.error('Error:', error);
-                alert('Error creating company. Please try again.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    html: 
+                        '<div class="text-start">' +
+                            '<p class="mb-2">Unable to connect to the server. Please check your internet connection and try again.</p>' +
+                            '<div class="alert alert-warning">' +
+                                '<h6 class="alert-heading">' +
+                                    '<i class="fas fa-exclamation-triangle me-2"></i>Troubleshooting Tips:' +
+                                '</h6>' +
+                                '<ul class="mb-0">' +
+                                    '<li>Check your internet connection</li>' +
+                                    '<li>Refresh the page and try again</li>' +
+                                    '<li>Clear your browser cache</li>' +
+                                    '<li>Contact support if the issue persists</li>' +
+                                '</ul>' +
+                            '</div>' +
+                        '</div>',
+                    confirmButtonText: 'Try Again',
+                    confirmButtonColor: '#ffc107'
+                });
                 createButton.innerHTML = '<i class="fas fa-check me-2"></i> Create Company';
                 createButton.disabled = false;
             });
@@ -777,6 +1267,7 @@
         
         // Initialize
         updateProgress();
+        setupRealTimeValidation();
     </script>
 </body>
 </html>

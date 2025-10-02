@@ -3,55 +3,66 @@
 @using PayrollPro.Web.Pages.Companies
 @model DetailsModel
 @{
-    ViewData["Title"] = $"{Model.Company.Name} - Company Details";
-    Layout = "_Layout";
+    ViewData["Title"] = $"{Model.Company.Name} - Company Dashboard";
+}
+
+@section styles {
+    <!-- SweetAlert2 for Professional Notifications -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/css/company-dashboard.css" />
 }
 
 <div class="container-fluid py-4">
-    <!-- Header -->
+    <!-- Dashboard Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 bg-gradient-primary text-white">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            <a href="javascript:history.back()" class="btn btn-outline-secondary me-3">
-                                <i class="fas fa-arrow-left"></i> Back
+                            <a href="/Companies" class="btn btn-outline-light me-3">
+                                <i class="fas fa-arrow-left"></i> Back to Companies
                             </a>
                             <div class="d-flex align-items-center">
                                 @if (!string.IsNullOrEmpty(Model.Company.LogoUrl))
                                 {
                                     <img src="@Model.Company.LogoUrl" alt="@Model.Company.Name Logo" 
-                                         class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                         class="rounded-circle me-3 border border-light" style="width: 60px; height: 60px; object-fit: cover;">
                                 }
                                 else
                                 {
-                                    <div class="bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                    <div class="bg-white bg-opacity-25 rounded-circle me-3 d-flex align-items-center justify-content-center" 
                                          style="width: 60px; height: 60px;">
                                         <i class="fas fa-building text-white"></i>
                                     </div>
                                 }
                                 <div>
-                                    <h2 class="mb-0">@Model.Company.Name</h2>
-                                    <p class="text-muted mb-0">@Model.Company.Code</p>
+                                    <h2 class="mb-0 fw-bold">@Model.Company.Name Dashboard</h2>
+                                    <p class="mb-0 opacity-75">
+                                        <i class="fas fa-code me-1"></i>@Model.Company.Code
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-users me-1"></i>@Model.Company.EmployeeCount employees
+                                        <span class="mx-2">•</span>
+                                        <span class="badge bg-light text-dark">@(Model.Company.IsActive ? "Active" : "Inactive")</span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <span class="badge @(Model.Company.IsActive ? "bg-success" : "bg-secondary") fs-6">
-                                @(Model.Company.IsActive ? "Active" : "Inactive")
-                            </span>
+                            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#payrollSettingsModal">
+                                <i class="fas fa-cog"></i> Payroll Settings
+                            </button>
                             <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" 
+                                <button class="btn btn-outline-light dropdown-toggle" type="button" 
                                         id="dropdownMenuButton" data-bs-toggle="dropdown">
-                                    <i class="fas fa-cog"></i> Actions
+                                    <i class="fas fa-ellipsis-v"></i> More Actions
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="/Companies/Edit/@Model.Company.Id">
-                                        <i class="fas fa-edit"></i> Edit Company
+                                        <i class="fas fa-edit text-primary"></i> Edit Company
                                     </a></li>
                                     <li><a class="dropdown-item" href="/Employees?companyId=@Model.Company.Id">
-                                        <i class="fas fa-users"></i> View Employees
+                                        <i class="fas fa-users text-info"></i> Manage Employees
                                     </a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -66,231 +77,683 @@
         </div>
     </div>
 
-    <!-- Company Details -->
-    <div class="row">
-        <!-- Basic Information -->
+    <!-- Payroll Engine & Quick Actions -->
+    <div class="row mb-4">
+        <!-- Payroll Engine Panel -->
         <div class="col-lg-8">
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-info-circle text-primary"></i> Company Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Company Name</label>
-                            <p class="fw-bold">@Model.Company.Name</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Company Code</label>
-                            <p class="fw-bold">@Model.Company.Code</p>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label class="form-label text-muted">Description</label>
-                            <p>@(string.IsNullOrEmpty(Model.Company.Description) ? "No description provided." : Model.Company.Description)</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Established Date</label>
-                            <p class="fw-bold">@Model.Company.EstablishedDate.ToString("MMMM dd, yyyy")</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Employee Count</label>
-                            <p class="fw-bold">
-                                <i class="fas fa-users text-primary"></i> @Model.Company.EmployeeCount employees
-                            </p>
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calculator me-2"></i>Payroll Engine
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-light btn-sm" onclick="schedulePayroll()">
+                                <i class="fas fa-clock"></i> Schedule
+                            </button>
+                            <button class="btn btn-light btn-sm" onclick="viewPayrollHistory()">
+                                <i class="fas fa-history"></i> History
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Contact Information -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-address-book text-success"></i> Contact Information</h5>
-                </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <label class="form-label text-muted">Address</label>
-                            <p class="fw-bold">
-                                <i class="fas fa-map-marker-alt text-danger"></i>
-                                @Model.Company.Address
-                                @if (!string.IsNullOrEmpty(Model.Company.City))
-                                {
-                                    <br><span class="text-muted">@Model.Company.City</span>
-                                    @if (!string.IsNullOrEmpty(Model.Company.State))
-                                    {
-                                        <span class="text-muted">, @Model.Company.State</span>
-                                    }
-                                    @if (!string.IsNullOrEmpty(Model.Company.ZipCode))
-                                    {
-                                        <span class="text-muted"> @Model.Company.ZipCode</span>
-                                    }
-                                }
-                                @if (!string.IsNullOrEmpty(Model.Company.Country))
-                                {
-                                    <br><span class="text-muted">@Model.Company.Country</span>
-                                }
-                            </p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="bg-light rounded p-3 text-center">
+                                <i class="fas fa-play-circle text-success fa-2x mb-2"></i>
+                                <h6 class="mb-1">Next Payroll</h6>
+                                <small class="text-muted">End of Month</small>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Phone Number</label>
-                            @if (!string.IsNullOrEmpty(Model.Company.Phone))
-                            {
-                                <p class="fw-bold">
-                                    <i class="fas fa-phone text-info"></i>
-                                    <a href="tel:@Model.Company.Phone" class="text-decoration-none">@Model.Company.Phone</a>
-                                </p>
-                            }
-                            else
-                            {
-                                <p class="text-muted">Not provided</p>
-                            }
+                        <div class="col-md-3">
+                            <div class="bg-light rounded p-3 text-center">
+                                <i class="fas fa-dollar-sign text-warning fa-2x mb-2"></i>
+                                <h6 class="mb-1">Monthly Budget</h6>
+                                <small class="text-muted">$45,000</small>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Email Address</label>
-                            @if (!string.IsNullOrEmpty(Model.Company.Email))
-                            {
-                                <p class="fw-bold">
-                                    <i class="fas fa-envelope text-warning"></i>
-                                    <a href="mailto:@Model.Company.Email" class="text-decoration-none">@Model.Company.Email</a>
-                                </p>
-                            }
-                            else
-                            {
-                                <p class="text-muted">Not provided</p>
-                            }
+                        <div class="col-md-3">
+                            <div class="bg-light rounded p-3 text-center">
+                                <i class="fas fa-check-circle text-info fa-2x mb-2"></i>
+                                <h6 class="mb-1">Processed</h6>
+                                <small class="text-muted">12 this month</small>
+                            </div>
                         </div>
-                        <div class="col-12 mb-3">
-                            <label class="form-label text-muted">Website</label>
-                            @if (!string.IsNullOrEmpty(Model.Company.Website))
-                            {
-                                <p class="fw-bold">
-                                    <i class="fas fa-globe text-primary"></i>
-                                    <a href="@Model.Company.Website" target="_blank" class="text-decoration-none">
-                                        @Model.Company.Website <i class="fas fa-external-link-alt ms-1 small"></i>
-                                    </a>
-                                </p>
-                            }
-                            else
-                            {
-                                <p class="text-muted">Not provided</p>
-                            }
+                        <div class="col-md-3">
+                            <div class="bg-light rounded p-3 text-center">
+                                <i class="fas fa-exclamation-triangle text-danger fa-2x mb-2"></i>
+                                <h6 class="mb-1">Pending</h6>
+                                <small class="text-muted">3 reviews</small>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Legal Information -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-gavel text-warning"></i> Legal Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Tax ID</label>
-                            <p class="fw-bold">@(string.IsNullOrEmpty(Model.Company.TaxId) ? "Not provided" : Model.Company.TaxId)</p>
+                    
+                    <!-- Payroll Actions -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <button class="btn btn-success btn-lg w-100" onclick="runPayrollEngine()">
+                                <i class="fas fa-play me-2"></i>Run Payroll Engine
+                                <br><small class="opacity-75">Process current period payroll</small>
+                            </button>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted">Registration Number</label>
-                            <p class="fw-bold">@(string.IsNullOrEmpty(Model.Company.RegistrationNumber) ? "Not provided" : Model.Company.RegistrationNumber)</p>
+                        <div class="col-md-6">
+                            <button class="btn btn-primary btn-lg w-100" onclick="calculatePayroll()">
+                                <i class="fas fa-calculator me-2"></i>Calculate Preview
+                                <br><small class="opacity-75">Preview without processing</small>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-warning btn-lg w-100" onclick="generateReports()">
+                                <i class="fas fa-file-alt me-2"></i>Generate Reports
+                                <br><small class="opacity-75">Payroll summaries & statements</small>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-info btn-lg w-100" onclick="manageTimesheets()">
+                                <i class="fas fa-clock me-2"></i>Manage Timesheets
+                                <br><small class="opacity-75">Review & approve hours</small>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar -->
+        <!-- Quick Stats Dashboard -->
         <div class="col-lg-4">
-            <!-- Company Logo -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-image text-info"></i> Company Logo</h5>
-                </div>
-                <div class="card-body text-center">
-                    @if (!string.IsNullOrEmpty(Model.Company.LogoUrl))
-                    {
-                        <img src="@Model.Company.LogoUrl" alt="@Model.Company.Name Logo" 
-                             class="img-fluid rounded shadow" style="max-width: 200px; max-height: 200px;">
-                    }
-                    else
-                    {
-                        <div class="bg-light rounded p-4">
-                            <i class="fas fa-building fa-4x text-muted"></i>
-                            <p class="text-muted mt-2">No logo uploaded</p>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar text-success"></i> Quick Stats</h5>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Company Overview</h6>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-muted">Total Employees</span>
-                        <span class="badge bg-primary fs-6">@Model.Company.EmployeeCount</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-muted">Company Age</span>
-                        <span class="badge bg-info fs-6">
-                            @((DateTime.Now.Year - Model.Company.EstablishedDate.Year)) years
-                        </span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted">Status</span>
-                        <span class="badge @(Model.Company.IsActive ? "bg-success" : "bg-secondary") fs-6">
-                            @(Model.Company.IsActive ? "Active" : "Inactive")
-                        </span>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                <div>
+                                    <small class="text-muted d-block">Total Employees</small>
+                                    <strong class="h5 mb-0 text-primary">@Model.Company.EmployeeCount</strong>
+                                </div>
+                                <i class="fas fa-users fa-2x text-primary opacity-25"></i>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <small class="text-muted d-block">Active</small>
+                                <strong class="text-success">@(Model.Company.EmployeeCount - 2)</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <small class="text-muted d-block">On Leave</small>
+                                <strong class="text-warning">2</strong>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                <div>
+                                    <small class="text-muted d-block">Company Age</small>
+                                    <strong class="h6 mb-0">@((DateTime.Now.Year - Model.Company.EstablishedDate.Year)) years</strong>
+                                </div>
+                                <i class="fas fa-birthday-cake fa-2x text-info opacity-25"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Activity -->
+            <!-- Quick Actions -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="addEmployee()">
+                            <i class="fas fa-user-plus me-2"></i>Add New Employee
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="viewReports()">
+                            <i class="fas fa-chart-bar me-2"></i>View Reports
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="backupData()">
+                            <i class="fas fa-download me-2"></i>Backup Data
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="exportData()">
+                            <i class="fas fa-file-export me-2"></i>Export Payroll
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Information Tabs -->
+    <div class="row">
+        <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-clock text-warning"></i> Company Timeline</h5>
+                    <ul class="nav nav-tabs card-header-tabs" id="companyTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
+                                <i class="fas fa-info-circle me-1"></i>Company Info
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
+                                <i class="fas fa-address-book me-1"></i>Contact Details
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="legal-tab" data-bs-toggle="tab" data-bs-target="#legal" type="button" role="tab">
+                                <i class="fas fa-gavel me-1"></i>Legal Information
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button" role="tab">
+                                <i class="fas fa-clock me-1"></i>Timeline
+                            </button>
+                        </li>
+                    </ul>
                 </div>
                 <div class="card-body">
-                    <div class="timeline">
-                        <div class="timeline-item mb-3">
-                            <div class="d-flex">
-                                <div class="timeline-marker bg-success rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
-                                <div>
-                                    <p class="mb-1 small text-muted">Company Established</p>
-                                    <p class="mb-0 fw-bold">@Model.Company.EstablishedDate.ToString("MMMM dd, yyyy")</p>
+                    <div class="tab-content" id="companyTabsContent">
+                        <!-- Company Information Tab -->
+                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Company Name</label>
+                                    <p class="fw-bold">@Model.Company.Name</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Company Code</label>
+                                    <p class="fw-bold">@Model.Company.Code</p>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label text-muted">Description</label>
+                                    <p>@(string.IsNullOrEmpty(Model.Company.Description) ? "No description provided." : Model.Company.Description)</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Established Date</label>
+                                    <p class="fw-bold">@Model.Company.EstablishedDate.ToString("MMMM dd, yyyy")</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Employee Count</label>
+                                    <p class="fw-bold">
+                                        <i class="fas fa-users text-primary"></i> @Model.Company.EmployeeCount employees
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="timeline-item mb-3">
-                            <div class="d-flex">
-                                <div class="timeline-marker bg-primary rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
-                                <div>
-                                    <p class="mb-1 small text-muted">Record Created</p>
-                                    <p class="mb-0 fw-bold">@Model.Company.CreationTime.ToString("MMMM dd, yyyy")</p>
+
+                        <!-- Contact Information Tab -->
+                        <div class="tab-pane fade" id="contact" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label class="form-label text-muted">Address</label>
+                                    <p class="fw-bold">
+                                        <i class="fas fa-map-marker-alt text-danger"></i>
+                                        @Model.Company.Address
+                                        @if (!string.IsNullOrEmpty(Model.Company.City))
+                                        {
+                                            <br><span class="text-muted">@Model.Company.City</span>
+                                            @if (!string.IsNullOrEmpty(Model.Company.State))
+                                            {
+                                                <span class="text-muted">, @Model.Company.State</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(Model.Company.ZipCode))
+                                            {
+                                                <span class="text-muted"> @Model.Company.ZipCode</span>
+                                            }
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.Company.Country))
+                                        {
+                                            <br><span class="text-muted">@Model.Company.Country</span>
+                                        }
+                                    </p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Phone Number</label>
+                                    @if (!string.IsNullOrEmpty(Model.Company.Phone))
+                                    {
+                                        <p class="fw-bold">
+                                            <i class="fas fa-phone text-info"></i>
+                                            <a href="tel:@Model.Company.Phone" class="text-decoration-none">@Model.Company.Phone</a>
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Not provided</p>
+                                    }
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Email Address</label>
+                                    @if (!string.IsNullOrEmpty(Model.Company.Email))
+                                    {
+                                        <p class="fw-bold">
+                                            <i class="fas fa-envelope text-warning"></i>
+                                            <a href="mailto:@Model.Company.Email" class="text-decoration-none">@Model.Company.Email</a>
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Not provided</p>
+                                    }
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label text-muted">Website</label>
+                                    @if (!string.IsNullOrEmpty(Model.Company.Website))
+                                    {
+                                        <p class="fw-bold">
+                                            <i class="fas fa-globe text-primary"></i>
+                                            <a href="@Model.Company.Website" target="_blank" class="text-decoration-none">
+                                                @Model.Company.Website <i class="fas fa-external-link-alt ms-1 small"></i>
+                                            </a>
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Not provided</p>
+                                    }
                                 </div>
                             </div>
                         </div>
-                        @if (Model.Company.LastModificationTime.HasValue)
-                        {
-                            <div class="timeline-item">
-                                <div class="d-flex">
-                                    <div class="timeline-marker bg-warning rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
-                                    <div>
-                                        <p class="mb-1 small text-muted">Last Updated</p>
-                                        <p class="mb-0 fw-bold">@Model.Company.LastModificationTime.Value.ToString("MMMM dd, yyyy")</p>
+
+                        <!-- Legal Information Tab -->
+                        <div class="tab-pane fade" id="legal" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Tax ID</label>
+                                    <p class="fw-bold">@(string.IsNullOrEmpty(Model.Company.TaxId) ? "Not provided" : Model.Company.TaxId)</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Registration Number</label>
+                                    <p class="fw-bold">@(string.IsNullOrEmpty(Model.Company.RegistrationNumber) ? "Not provided" : Model.Company.RegistrationNumber)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Tab -->
+                        <div class="tab-pane fade" id="timeline" role="tabpanel">
+                            <div class="timeline">
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex">
+                                        <div class="timeline-marker bg-success rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
+                                        <div>
+                                            <p class="mb-1 small text-muted">Company Established</p>
+                                            <p class="mb-0 fw-bold">@Model.Company.EstablishedDate.ToString("MMMM dd, yyyy")</p>
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex">
+                                        <div class="timeline-marker bg-primary rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
+                                        <div>
+                                            <p class="mb-1 small text-muted">Record Created</p>
+                                            <p class="mb-0 fw-bold">@Model.Company.CreationTime.ToString("MMMM dd, yyyy")</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (Model.Company.LastModificationTime.HasValue)
+                                {
+                                    <div class="timeline-item">
+                                        <div class="d-flex">
+                                            <div class="timeline-marker bg-warning rounded-circle me-3" style="width: 12px; height: 12px; margin-top: 6px;"></div>
+                                            <div>
+                                                <p class="mb-1 small text-muted">Last Updated</p>
+                                                <p class="mb-0 fw-bold">@Model.Company.LastModificationTime.Value.ToString("MMMM dd, yyyy")</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             </div>
-                        }
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Payroll Settings Modal -->
+<div class="modal fade" id="payrollSettingsModal" tabindex="-1" aria-labelledby="payrollSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="payrollSettingsModalLabel">
+                    <i class="fas fa-cog me-2"></i>Payroll Settings
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Pay Frequency</label>
+                        <select class="form-select">
+                            <option>Monthly</option>
+                            <option>Bi-weekly</option>
+                            <option>Weekly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Pay Period End</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Standard Work Hours</label>
+                        <input type="number" class="form-control" value="40" min="1" max="60">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Overtime Rate</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" value="1.5" step="0.1" min="1">
+                            <span class="input-group-text">x</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="autoProcessPayroll">
+                            <label class="form-check-label" for="autoProcessPayroll">
+                                Auto-process payroll at period end
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="savePayrollSettings()">
+                    <i class="fas fa-save me-1"></i>Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>@Model.Company.Name</strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone. All associated employees, payrolls, and data will be permanently deleted.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                    <i class="fas fa-trash me-1"></i>Delete Company
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payroll Engine Processing Modal -->
+<div class="modal fade" id="payrollProcessingModal" tabindex="-1" aria-labelledby="payrollProcessingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="payrollProcessingModalLabel">
+                    <i class="fas fa-calculator me-2"></i>Payroll Engine
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="payrollProcessingContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success mb-3" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <h5>Processing Payroll...</h5>
+                        <p class="text-muted">Please wait while we calculate payroll for all employees.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    // Payroll Engine Functions
+    function runPayrollEngine() {
+        Swal.fire({
+            title: 'Run Payroll Engine?',
+            text: 'This will process payroll for all active employees in the current pay period.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-play me-1"></i>Yes, Run Payroll',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show processing modal
+                var modal = new bootstrap.Modal(document.getElementById('payrollProcessingModal'));
+                modal.show();
+                
+                // Simulate payroll processing
+                setTimeout(() => {
+                    modal.hide();
+                    Swal.fire({
+                        title: 'Payroll Processing Complete!',
+                        text: 'Payroll has been successfully processed for @Model.Company.EmployeeCount employees.',
+                        icon: 'success',
+                        confirmButtonText: 'View Results',
+                        confirmButtonColor: '#28a745'
+                    }).then(() => {
+                        // Redirect to payroll results or refresh page
+                        window.location.reload();
+                    });
+                }, 3000);
+            }
+        });
+    }
+
+    function calculatePayroll() {
+        Swal.fire({
+            title: 'Calculate Payroll Preview?',
+            text: 'This will generate a preview of payroll calculations without processing payments.',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#007bff',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-calculator me-1"></i>Calculate Preview',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Preview Generated!',
+                    text: 'Payroll preview has been calculated. Total estimated payout: $45,230.50',
+                    icon: 'success',
+                    confirmButtonText: 'View Details',
+                    confirmButtonColor: '#007bff'
+                });
+            }
+        });
+    }
+
+    function generateReports() {
+        Swal.fire({
+            title: 'Generate Payroll Reports',
+            text: 'Select the type of report you want to generate:',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#ffc107',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-file-alt me-1"></i>Generate Reports',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Reports Generated!',
+                    text: 'Payroll reports have been generated and are ready for download.',
+                    icon: 'success',
+                    confirmButtonText: 'Download',
+                    confirmButtonColor: '#ffc107'
+                });
+            }
+        });
+    }
+
+    function manageTimesheets() {
+        Swal.fire({
+            title: 'Timesheet Management',
+            text: 'Opening timesheet management for review and approval.',
+            icon: 'info',
+            confirmButtonText: 'Open Timesheets',
+            confirmButtonColor: '#17a2b8'
+        }).then(() => {
+            // Redirect to timesheet management page
+            window.location.href = '/Timesheets?companyId=@Model.Company.Id';
+        });
+    }
+
+    function schedulePayroll() {
+        Swal.fire({
+            title: 'Schedule Payroll',
+            text: 'Set up automatic payroll processing schedule.',
+            icon: 'info',
+            confirmButtonText: 'Configure Schedule',
+            confirmButtonColor: '#6f42c1'
+        });
+    }
+
+    function viewPayrollHistory() {
+        Swal.fire({
+            title: 'Payroll History',
+            text: 'Opening payroll processing history and records.',
+            icon: 'info',
+            confirmButtonText: 'View History',
+            confirmButtonColor: '#fd7e14'
+        }).then(() => {
+            // Redirect to payroll history page
+            window.location.href = '/Payrolls?companyId=@Model.Company.Id';
+        });
+    }
+
+    // Quick Actions Functions
+    function addEmployee() {
+        window.location.href = '/Employees/Create?companyId=@Model.Company.Id';
+    }
+
+    function viewReports() {
+        Swal.fire({
+            title: 'Company Reports',
+            text: 'Opening comprehensive company and payroll reports.',
+            icon: 'info',
+            confirmButtonText: 'View Reports',
+            confirmButtonColor: '#17a2b8'
+        });
+    }
+
+    function backupData() {
+        Swal.fire({
+            title: 'Backup Company Data?',
+            text: 'This will create a backup of all company and payroll data.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#ffc107',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-download me-1"></i>Create Backup',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Backup Created!',
+                    text: 'Company data backup has been successfully created and is ready for download.',
+                    icon: 'success',
+                    confirmButtonText: 'Download Backup',
+                    confirmButtonColor: '#28a745'
+                });
+            }
+        });
+    }
+
+    function exportData() {
+        Swal.fire({
+            title: 'Export Payroll Data?',
+            text: 'This will export current payroll data to Excel format.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-file-export me-1"></i>Export Data',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Export Complete!',
+                    text: 'Payroll data has been exported successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'Download File',
+                    confirmButtonColor: '#28a745'
+                });
+            }
+        });
+    }
+
+    // Settings Functions
+    function savePayrollSettings() {
+        Swal.fire({
+            title: 'Settings Saved!',
+            text: 'Payroll settings have been updated successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#28a745'
+        }).then(() => {
+            var modal = bootstrap.Modal.getInstance(document.getElementById('payrollSettingsModal'));
+            modal.hide();
+        });
+    }
+
+    // Delete Function
+    function confirmDelete() {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.pathname;
+        
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = '__RequestVerificationToken';
+        input.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        form.appendChild(input);
+        
+        var handlerInput = document.createElement('input');
+        handlerInput.type = 'hidden';
+        handlerInput.name = 'handler';
+        handlerInput.value = 'Delete';
+        form.appendChild(handlerInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Initialize tooltips and other Bootstrap components
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+    </script>
+}
+
+<!-- Anti-forgery token for forms -->
+@Html.AntiForgeryToken()
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">

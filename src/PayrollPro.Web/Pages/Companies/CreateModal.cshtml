@@ -172,7 +172,15 @@
                 })
                 .fail(function(xhr) {
                     console.error('Error creating company:', xhr.responseText);
-                    alert('Error creating company. Please try again.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Creation Failed',
+                        text: 'Error creating company. Please try again.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 4000
+                    });
                 });
         });
     });
