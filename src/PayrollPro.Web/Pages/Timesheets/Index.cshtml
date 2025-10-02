@@ -1,0 +1,431 @@
+@page
+@using PayrollPro.Timesheets
+@using PayrollPro.Web.Pages.Timesheets
+@model PayrollPro.Web.Pages.Timesheets.IndexModel
+@{
+    ViewData["Title"] = "Timesheets - QuickBooks Style";
+}
+
+@section styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/css/timesheet-quickbooks.css">
+}
+
+<div class="timesheet-container">
+    <div class="timesheet-card">
+        <!-- Header -->
+        <div class="timesheet-header">
+            <h1 class="timesheet-title">
+                <i class="fas fa-clock me-2"></i>Weekly Timesheet
+            </h1>
+            <p class="timesheet-subtitle">Track your time with professional accuracy</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="timesheet-controls">
+            <div class="week-navigation">
+                <button type="button" class="week-nav-btn" onclick="navigateWeek(-1)">
+                    <i class="fas fa-chevron-left"></i> Previous Week
+                </button>
+                <div class="week-display" id="weekDisplay">
+                    @if (Model.WeekStarting != default)
+                    {
+                        @($"{Model.WeekStarting.ToString("MMM dd")} - {Model.WeekStarting.AddDays(6).ToString("MMM dd, yyyy")}")
+                    }
+                    else
+                    {
+                        @($"{DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek).ToString("MMM dd")} - {DateTime.Today.AddDays(6-(int)DateTime.Today.DayOfWeek).ToString("MMM dd, yyyy")}")
+                    }
+                </div>
+                <button type="button" class="week-nav-btn" onclick="navigateWeek(1)">
+                    Next Week <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="employee-selector">
+                <label for="employeeSelect"><i class="fas fa-user me-2"></i>Employee:</label>
+                <select id="employeeSelect" onchange="selectEmployee(this.value)">
+                    <option value="">Select Employee</option>
+                    <!-- Employee options will be populated by JavaScript -->
+                </select>
+            </div>
+        </div>
+
+        @if (Model.CurrentTimesheet != null)
+        {
+            <!-- Timesheet Table -->
+            <div class="timesheet-table-container">
+                <table class="timesheet-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Time</th>
+                            <th class="day-header">Monday<br><small>@Model.WeekStarting.ToString("M/d")</small></th>
+                            <th class="day-header">Tuesday<br><small>@Model.WeekStarting.AddDays(1).ToString("M/d")</small></th>
+                            <th class="day-header">Wednesday<br><small>@Model.WeekStarting.AddDays(2).ToString("M/d")</small></th>
+                            <th class="day-header">Thursday<br><small>@Model.WeekStarting.AddDays(3).ToString("M/d")</small></th>
+                            <th class="day-header">Friday<br><small>@Model.WeekStarting.AddDays(4).ToString("M/d")</small></th>
+                            <th class="day-header">Saturday<br><small>@Model.WeekStarting.AddDays(5).ToString("M/d")</small></th>
+                            <th class="day-header">Sunday<br><small>@Model.WeekStarting.AddDays(6).ToString("M/d")</small></th>
+                            <th style="width: 100px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Start Time Row -->
+                        <tr>
+                            <td><strong>Start</strong></td>
+                            <td><input type="time" class="time-input" data-day="monday" data-type="start" value="@(Model.CurrentTimesheet.MondayStart?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="tuesday" data-type="start" value="@(Model.CurrentTimesheet.TuesdayStart?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="wednesday" data-type="start" value="@(Model.CurrentTimesheet.WednesdayStart?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="thursday" data-type="start" value="@(Model.CurrentTimesheet.ThursdayStart?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="friday" data-type="start" value="@(Model.CurrentTimesheet.FridayStart?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="saturday" data-type="start" value="@(Model.CurrentTimesheet.SaturdayStart?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="sunday" data-type="start" value="@(Model.CurrentTimesheet.SundayStart?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td class="hours-display" id="totalStart">-</td>
+                        </tr>
+                        
+                        <!-- End Time Row -->
+                        <tr>
+                            <td><strong>End</strong></td>
+                            <td><input type="time" class="time-input" data-day="monday" data-type="end" value="@(Model.CurrentTimesheet.MondayEnd?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="tuesday" data-type="end" value="@(Model.CurrentTimesheet.TuesdayEnd?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="wednesday" data-type="end" value="@(Model.CurrentTimesheet.WednesdayEnd?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="thursday" data-type="end" value="@(Model.CurrentTimesheet.ThursdayEnd?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="friday" data-type="end" value="@(Model.CurrentTimesheet.FridayEnd?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="saturday" data-type="end" value="@(Model.CurrentTimesheet.SaturdayEnd?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="sunday" data-type="end" value="@(Model.CurrentTimesheet.SundayEnd?.ToString(@"hh\:mm"))" onchange="calculateHours()" /></td>
+                            <td class="hours-display" id="totalEnd">-</td>
+                        </tr>
+                        
+                        <!-- Break Time Row -->
+                        <tr>
+                            <td><strong>Break</strong></td>
+                            <td><input type="time" class="time-input" data-day="monday" data-type="break" value="00:30" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="tuesday" data-type="break" value="00:30" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="wednesday" data-type="break" value="00:30" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="thursday" data-type="break" value="00:30" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="friday" data-type="break" value="00:30" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="saturday" data-type="break" value="00:30" onchange="calculateHours()" /></td>
+                            <td><input type="time" class="time-input" data-day="sunday" data-type="break" value="00:30" onchange="calculateHours()" /></td>
+                            <td class="hours-display" id="totalBreak">-</td>
+                        </tr>
+                        
+                        <!-- Regular Hours Row -->
+                        <tr>
+                            <td><strong>Reg Hours</strong></td>
+                            <td class="hours-display" id="mondayHours">0.00</td>
+                            <td class="hours-display" id="tuesdayHours">0.00</td>
+                            <td class="hours-display" id="wednesdayHours">0.00</td>
+                            <td class="hours-display" id="thursdayHours">0.00</td>
+                            <td class="hours-display" id="fridayHours">0.00</td>
+                            <td class="hours-display" id="saturdayHours">0.00</td>
+                            <td class="hours-display" id="sundayHours">0.00</td>
+                            <td class="hours-display" id="totalRegularHours">0.00</td>
+                        </tr>
+                        
+                        <!-- Overtime Hours Row -->
+                        <tr>
+                            <td><strong>OT Hours</strong></td>
+                            <td class="hours-display overtime-hours" id="mondayOT">0.00</td>
+                            <td class="hours-display overtime-hours" id="tuesdayOT">0.00</td>
+                            <td class="hours-display overtime-hours" id="wednesdayOT">0.00</td>
+                            <td class="hours-display overtime-hours" id="thursdayOT">0.00</td>
+                            <td class="hours-display overtime-hours" id="fridayOT">0.00</td>
+                            <td class="hours-display overtime-hours" id="saturdayOT">0.00</td>
+                            <td class="hours-display overtime-hours" id="sundayOT">0.00</td>
+                            <td class="hours-display overtime-hours" id="totalOvertimeHours">0.00</td>
+                        </tr>
+                        
+                        <!-- Total Row -->
+                        <tr class="total-row">
+                            <td><strong>Total</strong></td>
+                            <td class="hours-display" id="mondayTotal">0.00</td>
+                            <td class="hours-display" id="tuesdayTotal">0.00</td>
+                            <td class="hours-display" id="wednesdayTotal">0.00</td>
+                            <td class="hours-display" id="thursdayTotal">0.00</td>
+                            <td class="hours-display" id="fridayTotal">0.00</td>
+                            <td class="hours-display" id="saturdayTotal">0.00</td>
+                            <td class="hours-display" id="sundayTotal">0.00</td>
+                            <td class="hours-display" id="grandTotal" style="background: #3b82f6; color: white; font-size: 1.1rem;">0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card regular-hours">
+                    <div class="summary-value" id="summaryRegular">@Model.CurrentTimesheet.TotalRegularHours.ToString("F2")</div>
+                    <div class="summary-label">Regular Hours</div>
+                </div>
+                <div class="summary-card overtime-hours">
+                    <div class="summary-value" id="summaryOvertime">@Model.CurrentTimesheet.TotalOvertimeHours.ToString("F2")</div>
+                    <div class="summary-label">Overtime Hours</div>
+                </div>
+                <div class="summary-card total-hours">
+                    <div class="summary-value" id="summaryTotal">@((Model.CurrentTimesheet.TotalRegularHours + Model.CurrentTimesheet.TotalOvertimeHours).ToString("F2"))</div>
+                    <div class="summary-label">Total Hours</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">$@((Model.CurrentTimesheet.TotalRegularHours * 25m + Model.CurrentTimesheet.TotalOvertimeHours * 37.5m).ToString("F2"))</div>
+                    <div class="summary-label">Est. Earnings</div>
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="notes-section">
+                <label class="notes-label" for="timesheetNotes">
+                    <i class="fas fa-sticky-note me-2"></i>Notes & Comments
+                </label>
+                <textarea id="timesheetNotes" class="notes-input" placeholder="Add any notes or comments about your timesheet...">@Model.CurrentTimesheet.Notes</textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="timesheet-actions">
+                <div>
+                    <span class="status-badge status-@Model.CurrentTimesheet.Status.ToString().ToLower()">
+                        @Model.CurrentTimesheet.Status
+                    </span>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn-timesheet btn-secondary" onclick="saveTimesheet()">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    
+                    @if (Model.CurrentTimesheet.Status == TimesheetStatus.Draft)
+                    {
+                        <button type="button" class="btn-timesheet btn-primary" onclick="submitTimesheet()">
+                            <i class="fas fa-paper-plane"></i> Submit
+                        </button>
+                    }
+                    
+                    @if (Model.CurrentTimesheet.Status == TimesheetStatus.Submitted)
+                    {
+                        <button type="button" class="btn-timesheet btn-success" onclick="approveTimesheet()">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button type="button" class="btn-timesheet btn-warning" onclick="rejectTimesheet()">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    }
+
+                    <button type="button" class="btn-timesheet btn-secondary" onclick="printTimesheet()">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- No Employee Selected State -->
+            <div style="padding: 4rem 2rem; text-align: center; color: #64748b;">
+                <i class="fas fa-user-clock" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <h3>Select an Employee</h3>
+                <p>Choose an employee from the dropdown above to view their timesheet.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let currentWeekStart = new Date('@Model.WeekStarting.ToString("yyyy-MM-dd")') || getStartOfWeek(new Date());
+        let companyId = '@Model.CompanyId';
+        let currentEmployeeId = '@Model.EmployeeId';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmployees();
+            calculateHours();
+        });
+
+        function getStartOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            return new Date(d.setDate(diff));
+        }
+
+        function navigateWeek(direction) {
+            currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
+            updateWeekDisplay();
+            if (currentEmployeeId) {
+                window.location.href = `?companyId=${companyId}&employeeId=${currentEmployeeId}&weekStarting=${currentWeekStart.toISOString().split('T')[0]}`;
+            }
+        }
+
+        function updateWeekDisplay() {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const options = { month: 'short', day: 'numeric' };
+            const startStr = currentWeekStart.toLocaleDateString('en-US', options);
+            const endStr = weekEnd.toLocaleDateString('en-US', { ...options, year: 'numeric' });
+            
+            document.getElementById('weekDisplay').textContent = `${startStr} - ${endStr}`;
+        }
+
+        function selectEmployee(employeeId) {
+            if (employeeId) {
+                currentEmployeeId = employeeId;
+                window.location.href = `?companyId=${companyId}&employeeId=${employeeId}&weekStarting=${currentWeekStart.toISOString().split('T')[0]}`;
+            }
+        }
+
+        function loadEmployees() {
+            // This would typically load from an API
+            // For now, using placeholder data
+            const employees = [
+                { id: '12345678-1234-1234-1234-123456789012', name: 'John Doe' },
+                { id: '87654321-4321-4321-4321-210987654321', name: 'Jane Smith' },
+                { id: '11111111-2222-3333-4444-555555555555', name: 'Mike Johnson' }
+            ];
+
+            const select = document.getElementById('employeeSelect');
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = emp.name;
+                option.selected = emp.id === currentEmployeeId;
+                select.appendChild(option);
+            });
+        }
+
+        function calculateHours() {
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            let totalRegular = 0;
+            let totalOvertime = 0;
+
+            days.forEach(day => {
+                const startInput = document.querySelector(`[data-day="${day}"][data-type="start"]`);
+                const endInput = document.querySelector(`[data-day="${day}"][data-type="end"]`);
+                const breakInput = document.querySelector(`[data-day="${day}"][data-type="break"]`);
+
+                if (startInput && endInput && startInput.value && endInput.value) {
+                    const start = parseTime(startInput.value);
+                    const end = parseTime(endInput.value);
+                    const breakTime = breakInput ? parseTime(breakInput.value) : 0;
+
+                    let totalHours = (end - start) / (1000 * 60 * 60) - breakTime;
+                    totalHours = Math.max(0, totalHours);
+
+                    const regularHours = Math.min(8, totalHours);
+                    const overtimeHours = Math.max(0, totalHours - 8);
+
+                    document.getElementById(`${day}Hours`).textContent = regularHours.toFixed(2);
+                    document.getElementById(`${day}OT`).textContent = overtimeHours.toFixed(2);
+                    document.getElementById(`${day}Total`).textContent = totalHours.toFixed(2);
+
+                    totalRegular += regularHours;
+                    totalOvertime += overtimeHours;
+                } else {
+                    document.getElementById(`${day}Hours`).textContent = '0.00';
+                    document.getElementById(`${day}OT`).textContent = '0.00';
+                    document.getElementById(`${day}Total`).textContent = '0.00';
+                }
+            });
+
+            document.getElementById('totalRegularHours').textContent = totalRegular.toFixed(2);
+            document.getElementById('totalOvertimeHours').textContent = totalOvertime.toFixed(2);
+            document.getElementById('grandTotal').textContent = (totalRegular + totalOvertime).toFixed(2);
+
+            // Update summary cards
+            document.getElementById('summaryRegular').textContent = totalRegular.toFixed(2);
+            document.getElementById('summaryOvertime').textContent = totalOvertime.toFixed(2);
+            document.getElementById('summaryTotal').textContent = (totalRegular + totalOvertime).toFixed(2);
+        }
+
+        function parseTime(timeString) {
+            if (!timeString) return 0;
+            const [hours, minutes] = timeString.split(':').map(Number);
+            return new Date(1970, 0, 1, hours, minutes).getTime();
+        }
+
+        function saveTimesheet() {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Timesheet saved successfully',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function submitTimesheet() {
+            Swal.fire({
+                title: 'Submit Timesheet?',
+                text: 'Once submitted, you will not be able to make changes without approval.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#3b82f6'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Submitted!',
+                        text: 'Your timesheet has been submitted for approval.',
+                        icon: 'success',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            });
+        }
+
+        function approveTimesheet() {
+            Swal.fire({
+                title: 'Approve Timesheet?',
+                text: 'This will approve the timesheet for payroll processing.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Approve',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#10b981'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Approved!',
+                        text: 'Timesheet has been approved.',
+                        icon: 'success',
+                        confirmButtonColor: '#10b981'
+                    });
+                }
+            });
+        }
+
+        function rejectTimesheet() {
+            Swal.fire({
+                title: 'Reject Timesheet',
+                input: 'textarea',
+                inputLabel: 'Reason for rejection',
+                inputPlaceholder: 'Please provide a reason for rejecting this timesheet...',
+                showCancelButton: true,
+                confirmButtonText: 'Reject',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc2626'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Rejected',
+                        text: 'Timesheet has been rejected and returned to employee.',
+                        icon: 'info',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            });
+        }
+
+        function printTimesheet() {
+            window.print();
+        }
+
+        // Auto-save functionality
+        let saveTimeout;
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('time-input') || e.target.id === 'timesheetNotes') {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveTimesheet, 2000); // Auto-save after 2 seconds of no changes
+            }
+        });
+    </script>
+}
