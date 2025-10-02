@@ -72,6 +72,24 @@ namespace PayrollPro.Companies
         [Display(Name = "Logo URL")]
         public string LogoUrl { get; set; }
 
+        // Payroll Settings
+        [Display(Name = "Pay Frequency")]
+        public PayFrequency PayFrequency { get; set; } = PayFrequency.Monthly;
+        
+        [Display(Name = "Pay Period End")]
+        public DateTime? PayPeriodEnd { get; set; }
+        
+        [Range(1, 60, ErrorMessage = "Standard work hours must be between 1 and 60")]
+        [Display(Name = "Standard Work Hours")]
+        public int StandardWorkHours { get; set; } = 40;
+        
+        [Range(1.0, 5.0, ErrorMessage = "Overtime rate must be between 1.0 and 5.0")]
+        [Display(Name = "Overtime Rate")]
+        public decimal OvertimeRate { get; set; } = 1.5m;
+        
+        [Display(Name = "Auto Process Payroll")]
+        public bool AutoProcessPayroll { get; set; } = false;
+
         public CreateUpdateCompanyDto()
         {
             IsActive = true;

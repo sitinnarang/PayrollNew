@@ -23,6 +23,13 @@ namespace PayrollPro.Companies
         public string LogoUrl { get; set; }
         public int EmployeeCount { get; set; }
         
+        // Payroll Settings
+        public PayFrequency PayFrequency { get; set; } = PayFrequency.Monthly;
+        public DateTime? PayPeriodEnd { get; set; }
+        public int StandardWorkHours { get; set; } = 40;
+        public decimal OvertimeRate { get; set; } = 1.5m;
+        public bool AutoProcessPayroll { get; set; } = false;
+        
         // Full address for display
         public string FullAddress => $"{Address}, {City}, {State} {ZipCode}, {Country}".Trim(new char[] { ',', ' ' });
         

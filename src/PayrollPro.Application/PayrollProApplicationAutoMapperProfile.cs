@@ -18,6 +18,7 @@ public class PayrollProApplicationAutoMapperProfile : Profile
         // Company mappings
         CreateMap<Company, CompanyDto>();
         CreateMap<CreateUpdateCompanyDto, Company>();
+        CreateMap<Company, PayrollSettingsDto>();
 
         // Employee mappings
         CreateMap<Employee, EmployeeDto>()

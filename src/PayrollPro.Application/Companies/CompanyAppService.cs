@@ -34,6 +34,35 @@ namespace PayrollPro.Companies
             return ObjectMapper.Map<Company, CompanyDto>(company);
         }
 
+        public async Task<PayrollSettingsDto> GetPayrollSettingsAsync(Guid id)
+        {
+            var company = await Repository.GetAsync(id);
+            
+            return new PayrollSettingsDto
+            {
+                PayFrequency = company.PayFrequency,
+                PayPeriodEnd = company.PayPeriodEnd,
+                StandardWorkHours = company.StandardWorkHours,
+                OvertimeRate = company.OvertimeRate,
+                AutoProcessPayroll = company.AutoProcessPayroll
+            };
+        }
+
+        public async Task<PayrollSettingsDto> UpdatePayrollSettingsAsync(Guid id, PayrollSettingsDto input)
+        {
+            var company = await Repository.GetAsync(id);
+            
+            company.PayFrequency = input.PayFrequency;
+            company.PayPeriodEnd = input.PayPeriodEnd;
+            company.StandardWorkHours = input.StandardWorkHours;
+            company.OvertimeRate = input.OvertimeRate;
+            company.AutoProcessPayroll = input.AutoProcessPayroll;
+            
+            await Repository.UpdateAsync(company);
+            
+            return ObjectMapper.Map<Company, PayrollSettingsDto>(company);
+        }
+
         private async Task<string> GenerateCompanyCodeAsync(string companyName)
         {
             // Generate code from company name

@@ -106,6 +106,11 @@ public class PayrollProDbContext :
             b.Property(x => x.TaxId).HasMaxLength(50);
             b.Property(x => x.RegistrationNumber).HasMaxLength(50);
             b.Property(x => x.LogoUrl).HasMaxLength(200);
+            // Payroll Settings
+            b.Property(x => x.PayFrequency).IsRequired();
+            b.Property(x => x.StandardWorkHours).IsRequired();
+            b.Property(x => x.OvertimeRate).IsRequired().HasColumnType("decimal(3,1)");
+            b.Property(x => x.AutoProcessPayroll).IsRequired();
             b.HasIndex(x => x.Code).IsUnique();
             b.HasMany(x => x.Employees).WithOne(x => x.Company).HasForeignKey(x => x.CompanyId);
         });

@@ -57,6 +57,19 @@ namespace PayrollPro.Companies
 
         public int EmployeeCount { get; set; }
 
+        // Payroll Settings
+        public PayFrequency PayFrequency { get; set; } = PayFrequency.Monthly;
+        
+        public DateTime? PayPeriodEnd { get; set; }
+        
+        [Range(1, 60)]
+        public int StandardWorkHours { get; set; } = 40;
+        
+        [Range(1.0, 5.0)]
+        public decimal OvertimeRate { get; set; } = 1.5m;
+        
+        public bool AutoProcessPayroll { get; set; } = false;
+
         public Company()
         {
             IsActive = true;
