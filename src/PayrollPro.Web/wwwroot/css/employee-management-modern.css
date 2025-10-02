@@ -659,6 +659,358 @@
     }
 }
 
+/* Enhanced Table Styles */
+.table-container {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(31, 38, 135, 0.15);
+    margin: 2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.table-container .table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.95rem;
+}
+
+.table-container .table thead {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    color: white;
+    position: relative;
+}
+
+.table-container .table thead::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+}
+
+.table-container .table thead th {
+    border: none;
+    padding: 1.5rem 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.875rem;
+    position: relative;
+    vertical-align: middle;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.table-container .table thead th:first-child {
+    border-top-left-radius: 0;
+    padding-left: 2rem;
+}
+
+.table-container .table thead th:last-child {
+    border-top-right-radius: 0;
+    padding-right: 2rem;
+}
+
+.table-container .table tbody tr {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+}
+
+.table-container .table tbody tr::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.table-container .table tbody tr:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%);
+    transform: translateX(8px);
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.12);
+    border-radius: 0 12px 12px 0;
+}
+
+.table-container .table tbody tr:hover::before {
+    background: linear-gradient(180deg, #3B82F6, #10B981);
+}
+
+.table-container .table tbody td {
+    padding: 1.5rem 1.25rem;
+    vertical-align: middle;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+}
+
+.table-container .table tbody td:first-child {
+    padding-left: 2rem;
+}
+
+.table-container .table tbody td:last-child {
+    padding-right: 2rem;
+}
+
+.table-container .table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Enhanced Table Cell Styles */
+.table .employee-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.table .table-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.table tbody tr:hover .table-avatar {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.table .name-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.table .employee-name-table {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.table .employee-position-table {
+    font-size: 0.9rem;
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.table .contact-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.table .contact-item-table {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.table .contact-item-table i {
+    width: 16px;
+    color: var(--primary-blue);
+    opacity: 0.7;
+}
+
+.table .company-badge-table {
+    background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+    color: #0277bd;
+    padding: 0.75rem 1.25rem;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid #81d4fa;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(2, 119, 189, 0.1);
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover .company-badge-table {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(2, 119, 189, 0.2);
+}
+
+.table .salary-table {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary-green);
+    text-shadow: 0 1px 2px rgba(16, 185, 129, 0.1);
+}
+
+.table .status-badge-table {
+    padding: 0.75rem 1.25rem;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.table .status-active-table {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+.table .status-inactive-table {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border: 1px solid #f87171;
+}
+
+.table .status-onleave-table {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #fbbf24;
+}
+
+.table tbody tr:hover .status-badge-table {
+    transform: translateY(-2px);
+}
+
+.table .actions-table {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.table .action-btn-table {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.table .action-btn-table::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transition: all 0.4s ease;
+    transform: translate(-50%, -50%);
+}
+
+.table .action-btn-table:hover::before {
+    width: 100px;
+    height: 100px;
+}
+
+.table .action-btn-table:hover {
+    transform: translateY(-4px) scale(1.1);
+    color: white;
+    text-decoration: none;
+}
+
+.table .btn-edit-table {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+
+.table .btn-edit-table:hover {
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.4);
+}
+
+.table .btn-payroll-table {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.table .btn-payroll-table:hover {
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+}
+
+.table .btn-delete-table {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+
+.table .btn-delete-table:hover {
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.4);
+}
+
+/* Table Responsive Enhancements */
+@media (max-width: 1200px) {
+    .table-container {
+        margin: 1rem;
+        border-radius: 16px;
+    }
+    
+    .table-container .table thead th,
+    .table-container .table tbody td {
+        padding: 1rem 0.75rem;
+    }
+    
+    .table .employee-name-cell {
+        gap: 0.75rem;
+    }
+    
+    .table .table-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        margin: 0.5rem;
+        border-radius: 12px;
+    }
+    
+    .table-container .table {
+        font-size: 0.875rem;
+    }
+    
+    .table-container .table thead th,
+    .table-container .table tbody td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .table .actions-table {
+        gap: 0.5rem;
+    }
+    
+    .table .action-btn-table {
+        width: 36px;
+        height: 36px;
+        font-size: 0.875rem;
+    }
+}
+
 /* Animation Effects */
 @keyframes slideInUp {
     from {
@@ -686,4 +1038,12 @@
 
 .stat-card {
     animation: slideInUp 0.6s ease-out calc(0.1s * var(--delay, 0)) both;
+}
+
+.table-container {
+    animation: slideInUp 0.8s ease-out;
+}
+
+.table tbody tr {
+    animation: fadeIn 0.6s ease-out calc(0.05s * var(--row-delay, 0)) both;
 }

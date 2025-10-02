@@ -230,66 +230,80 @@
 
             <!-- Table View (Hidden by default) -->
             <div class="table-container" id="tableView" style="display: none;">
-                <div class="table-responsive">
-                    <table class="table" id="employeesTable">
-                        <thead>
-                            <tr>
-                                <th>Employee</th>
-                                <th>Company</th>
-                                <th>Department</th>
-                                <th>Position</th>
-                                <th>Salary</th>
-                                <th>Hire Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                <table class="table" id="employeesTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-user me-2"></i>Employee</th>
+                            <th><i class="fas fa-building me-2"></i>Company</th>
+                            <th><i class="fas fa-briefcase me-2"></i>Department</th>
+                            <th><i class="fas fa-id-badge me-2"></i>Position</th>
+                            <th><i class="fas fa-dollar-sign me-2"></i>Salary</th>
+                            <th><i class="fas fa-calendar me-2"></i>Hire Date</th>
+                            <th><i class="fas fa-circle me-2"></i>Status</th>
+                            <th><i class="fas fa-cog me-2"></i>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{int rowIndex = 0;}
+                        @foreach (var employee in Model.Employees.Items)
+                        {
+                            <tr data-company="@employee.CompanyId" 
+                                data-department="@employee.Department" 
+                                data-status="@employee.Status"
+                                data-search="@employee.FullName.ToLower() @employee.Email.ToLower() @employee.Position.ToLower() @employee.Department.ToLower()"
+                                style="--row-delay: @rowIndex">
+                                <td>
+                                    <div class="employee-name-cell">
+                                        <div class="table-avatar">
+                                            @employee.FirstName.Substring(0, 1)@employee.LastName.Substring(0, 1)
+                                        </div>
+                                        <div class="name-details">
+                                            <div class="employee-name-table">@employee.FullName</div>
+                                            <div class="employee-position-table">@employee.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="company-badge-table">
+                                        <i class="fas fa-building me-1"></i>
+                                        @employee.CompanyName
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="detail-value">@employee.Department</div>
+                                </td>
+                                <td>
+                                    <div class="detail-value">@employee.Position</div>
+                                </td>
+                                <td>
+                                    <div class="salary-table">@employee.FormattedSalary</div>
+                                </td>
+                                <td>
+                                    <div class="detail-value">@employee.HireDate.ToString("MMM dd, yyyy")</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge-table status-@(employee.Status.ToString().ToLower())-table">
+                                        @employee.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="actions-table">
+                                        <a href="/Payroll/Employee/@employee.Id" class="action-btn-table btn-payroll-table" title="View Payroll">
+                                            <i class="fas fa-money-bill"></i>
+                                        </a>
+                                        <a href="/Employees/Edit/@employee.Id" class="action-btn-table btn-edit-table" title="Edit Employee">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="action-btn-table btn-delete-table" title="Delete Employee" onclick="deleteEmployee('@employee.Id', '@employee.FullName')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var employee in Model.Employees.Items)
-                            {
-                                <tr data-company="@employee.CompanyId" 
-                                    data-department="@employee.Department" 
-                                    data-status="@employee.Status"
-                                    data-search="@employee.FullName.ToLower() @employee.Email.ToLower() @employee.Position.ToLower() @employee.Department.ToLower()">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="employee-avatar me-3">
-                                                @employee.FirstName.Substring(0, 1)@employee.LastName.Substring(0, 1)
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold">@employee.FullName</div>
-                                                <small class="text-muted">@employee.Email</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>@employee.CompanyName</td>
-                                    <td>@employee.Department</td>
-                                    <td>@employee.Position</td>
-                                    <td class="salary-value">@employee.FormattedSalary</td>
-                                    <td>@employee.HireDate.ToString("MMM dd, yyyy")</td>
-                                    <td>
-                                        <span class="employee-status @($"status-{employee.Status.ToString().ToLower()}")">
-                                            @employee.Status
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="employee-actions">
-                                            <a href="/Payroll/Employee/@employee.Id" class="action-btn btn-payroll" title="View Payroll">
-                                                <i class="fas fa-money-bill"></i>
-                                            </a>
-                                            <a href="/Employees/Edit/@employee.Id" class="action-btn btn-edit" title="Edit Employee">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button class="action-btn btn-delete" title="Delete Employee" onclick="deleteEmployee('@employee.Id', '@employee.FullName')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            rowIndex++;
+                        }
+                    </tbody>
+                </table>
             </div>
         }
         else
