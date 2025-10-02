@@ -120,6 +120,45 @@ namespace PayrollPro.Employees
             return new ListResultDto<EmployeeDto>(employeeDtos);
         }
 
+        public async Task<PagedResultDto<EmployeeDto>> GetEmployeesByCompanyAsync(Guid companyId, PagedAndSortedResultRequestDto input)
+        {
+            Console.WriteLine($"DEBUG: GetEmployeesByCompanyAsync called with companyId: {companyId}");
+            
+            // First, let's see all employees and their company IDs
+            var allEmployees = await Repository.GetListAsync();
+            Console.WriteLine($"DEBUG: Total employees in database: {allEmployees.Count}");
+            
+            foreach (var emp in allEmployees.Take(5)) // Show first 5
+            {
+                Console.WriteLine($"DEBUG: Employee {emp.FirstName} {emp.LastName} has CompanyId: {emp.CompanyId}");
+            }
+            
+            var employees = await Repository.GetListAsync(x => x.CompanyId == companyId);
+            Console.WriteLine($"DEBUG: Found {employees.Count} employees for company {companyId}");
+            
+            var employeeDtos = ObjectMapper.Map<List<Employee>, List<EmployeeDto>>(employees);
+            
+            // Populate company information
+            var company = await _companyRepository.FirstOrDefaultAsync(c => c.Id == companyId);
+            Console.WriteLine($"DEBUG: Company found: {company?.Name ?? "NOT FOUND"}");
+            
+            if (company != null)
+            {
+                foreach (var dto in employeeDtos)
+                {
+                    dto.CompanyName = company.Name;
+                    dto.CompanyCode = company.Code;
+                }
+            }
+            
+            var totalCount = employees.Count;
+            var pagedEmployees = employeeDtos.Skip(input.SkipCount).Take(input.MaxResultCount).ToList();
+            
+            Console.WriteLine($"DEBUG: Returning {pagedEmployees.Count} of {totalCount} total employees");
+            
+            return new PagedResultDto<EmployeeDto>(totalCount, pagedEmployees);
+        }
+
         public override async Task<EmployeeDto> CreateAsync(CreateUpdateEmployeeDto input)
         {
             // Validate company exists

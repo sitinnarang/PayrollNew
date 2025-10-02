@@ -32,20 +32,31 @@ namespace PayrollPro.Web.Pages.Employees
                 MaxResultCount = 1000
             });
 
-            // Get employees
-            Employees = await _employeeAppService.GetListAsync(new PagedAndSortedResultRequestDto
+            Console.WriteLine($"DEBUG: Companies loaded: {Companies.TotalCount}");
+            if (Companies.Items.Any())
             {
-                MaxResultCount = 1000
-            });
+                Console.WriteLine($"DEBUG: First company: {Companies.Items.First().Name} (ID: {Companies.Items.First().Id})");
+            }
 
-            // Filter by company if specified
+            // Get employees filtered by company if specified
             if (companyId.HasValue)
             {
-                var filteredEmployees = Employees.Items.Where(e => e.CompanyId == companyId.Value).ToList();
-                Employees = new PagedResultDto<EmployeeDto>(
-                    filteredEmployees.Count,
-                    filteredEmployees
-                );
+                Console.WriteLine($"DEBUG: Loading employees for company ID: {companyId.Value}");
+                Employees = await _employeeAppService.GetEmployeesByCompanyAsync(companyId.Value, new PagedAndSortedResultRequestDto
+                {
+                    MaxResultCount = 1000
+                });
+                Console.WriteLine($"DEBUG: Employees loaded: {Employees.TotalCount}");
+            }
+            else
+            {
+                Console.WriteLine("DEBUG: Loading all employees (no company filter)");
+                // Get all employees if no company filter
+                Employees = await _employeeAppService.GetListAsync(new PagedAndSortedResultRequestDto
+                {
+                    MaxResultCount = 1000
+                });
+                Console.WriteLine($"DEBUG: All employees loaded: {Employees.TotalCount}");
             }
         }
     }

@@ -14,5 +14,6 @@ namespace PayrollPro.Employees
         Task<EmployeeDto> GetByEmployeeIdAsync(string employeeId);
         Task<ListResultDto<EmployeeDto>> GetEmployeesByDepartmentAsync(string department);
         Task<ListResultDto<EmployeeDto>> GetEmployeesByStatusAsync(EmployeeStatus status);
+        Task<PagedResultDto<EmployeeDto>> GetEmployeesByCompanyAsync(Guid companyId, PagedAndSortedResultRequestDto input);
     }
 }
