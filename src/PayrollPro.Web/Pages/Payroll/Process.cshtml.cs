@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using PayrollPro.Employees;
 using PayrollPro.Companies;
 using PayrollPro.Payrolls;
@@ -59,9 +60,11 @@ namespace PayrollPro.Web.Pages.Payroll
                 
                 return Page();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return NotFound();
+                // Log the error for debugging
+                Logger.LogError(ex, "Error loading payroll data for Company: {CompanyId}, Employee: {EmployeeId}", CompanyId, EmployeeId);
+                return NotFound($"Could not find employee or company. Company ID: {CompanyId}, Employee ID: {EmployeeId}");
             }
         }
 
