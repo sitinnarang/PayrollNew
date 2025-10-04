@@ -121,6 +121,13 @@ public class PayrollProWebModule : AbpModule
         {
             options.IsDynamicClaimsEnabled = true;
         });
+        
+        context.Services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/Account/Login";
+            options.LogoutPath = "/Account/Logout";
+            options.AccessDeniedPath = "/Account/AccessDenied";
+        });
     }
 
     private void ConfigureUrls(IConfiguration configuration)

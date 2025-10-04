@@ -7,9 +7,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Authorization.Permissions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PayrollPro.Web.Pages;
 
+[Authorize]
 public class IndexModel : PayrollProPageModel
 {
     private readonly IEmployeeAppService _employeeAppService;
