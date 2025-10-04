@@ -56,6 +56,7 @@ namespace PayrollPro.Web.Pages.Employees
         {
             if (!ModelState.IsValid)
             {
+                TempData["ErrorMessage"] = "Please correct the validation errors and try again.";
                 return Page();
             }
 
@@ -63,10 +64,12 @@ namespace PayrollPro.Web.Pages.Employees
             {
                 await _employeeAppService.UpdateAsync(EmployeeId, Employee);
                 
+                TempData["SuccessMessage"] = $"Employee {Employee.FirstName} {Employee.LastName} has been updated successfully!";
                 return Redirect($"/Employees?companyId={Employee.CompanyId}");
             }
             catch (Exception ex)
             {
+                TempData["ErrorMessage"] = $"Failed to update employee: {ex.Message}";
                 ModelState.AddModelError("", $"An error occurred while updating the employee: {ex.Message}");
                 return Page();
             }
