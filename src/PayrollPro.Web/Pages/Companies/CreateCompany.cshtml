@@ -711,21 +711,28 @@
         }
         
         function nextStep() {
+            console.log('nextStep called, current step:', currentStep);
+            
             if (currentStep === 1) {
                 // Validate first step (user account + basic company info)
                 if (!validateStep1()) {
+                    console.log('Step 1 validation failed');
                     return;
                 }
+                console.log('Step 1 validation passed');
             } else if (currentStep === 2) {
                 // Validate second step (contact & location)
                 if (!validateStep2()) {
+                    console.log('Step 2 validation failed');
                     return;
                 }
+                console.log('Step 2 validation passed');
             }
             
             if (currentStep < totalSteps) {
                 currentStep++;
                 showStep(currentStep);
+                console.log('Moving to step:', currentStep);
             }
         }
         
@@ -760,7 +767,7 @@
             const businessEmail = businessEmailInput.value.trim();
             if (businessEmail) {
                 // Simple email validation without regex
-                if (!businessEmail.includes('@@') || !businessEmail.includes('.') || businessEmail.length < 5) {
+                if (!businessEmail.includes("@") || !businessEmail.includes(".") || businessEmail.length < 5) {
                     businessEmailInput.classList.add('is-invalid');
                     if (!firstError) firstError = businessEmailInput;
                     showValidationError('Invalid Business Email', 'Please enter a valid email address for your business', 'envelope');
@@ -807,6 +814,7 @@
         }
         
         function validateStep1() {
+            console.log('validateStep1 called');
             let isValid = true;
             let firstError = null;
             
@@ -818,117 +826,117 @@
             
             // Validate username
             const usernameInput = document.querySelector('input[name="UserRegistration.Username"]');
-            const username = usernameInput.value.trim();
+            const username = usernameInput ? usernameInput.value.trim() : '';
+            console.log('Username:', username);
             if (!username) {
-                usernameInput.classList.add('is-invalid');
+                if (usernameInput) usernameInput.classList.add('is-invalid');
                 if (!firstError) firstError = usernameInput;
                 showValidationError('Username Required', 'Please enter a username for your administrator account', 'user');
                 isValid = false;
             } else if (username.length < 3) {
-                usernameInput.classList.add('is-invalid');
+                if (usernameInput) usernameInput.classList.add('is-invalid');
                 if (!firstError) firstError = usernameInput;
                 showValidationError('Username Too Short', 'Username must be at least 3 characters long for security', 'user');
                 isValid = false;
             } else {
-                usernameInput.classList.add('is-valid');
+                if (usernameInput) usernameInput.classList.add('is-valid');
             }
             
             // Validate email
             const emailInput = document.querySelector('input[name="UserRegistration.Email"]');
-            const email = emailInput.value.trim();
-            const emailRegex = /^@@[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            const email = emailInput ? emailInput.value.trim() : '';
+            console.log('Email:', email);
             if (!email) {
-                emailInput.classList.add('is-invalid');
+                if (emailInput) emailInput.classList.add('is-invalid');
                 if (!firstError) firstError = emailInput;
                 showValidationError('Email Required', 'Please enter your email address for account verification', 'envelope');
                 isValid = false;
-            } else if (!emailRegex.test(email)) {
-                emailInput.classList.add('is-invalid');
+            } else if (!email.includes("@") || !email.includes(".") || email.length < 5) {
+                if (emailInput) emailInput.classList.add('is-invalid');
                 if (!firstError) firstError = emailInput;
                 showValidationError('Invalid Email Format', 'Please enter a valid email address (e.g., admin@company.com)', 'envelope');
                 isValid = false;
             } else {
-                emailInput.classList.add('is-valid');
+                if (emailInput) emailInput.classList.add('is-valid');
             }
             
             // Validate password
             const passwordInput = document.querySelector('input[name="UserRegistration.Password"]');
-            const password = passwordInput.value;
+            const password = passwordInput ? passwordInput.value : '';
+            console.log('Password length:', password.length);
             if (!password) {
-                passwordInput.classList.add('is-invalid');
+                if (passwordInput) passwordInput.classList.add('is-invalid');
                 if (!firstError) firstError = passwordInput;
                 showValidationError('Password Required', 'Please create a secure password for your account', 'lock');
                 isValid = false;
             } else if (password.length < 6) {
-                passwordInput.classList.add('is-invalid');
+                if (passwordInput) passwordInput.classList.add('is-invalid');
                 if (!firstError) firstError = passwordInput;
                 showValidationError('Password Too Short', 'Password must be at least 6 characters for security. Consider adding numbers and symbols.', 'lock');
                 isValid = false;
             } else {
-                passwordInput.classList.add('is-valid');
+                if (passwordInput) passwordInput.classList.add('is-valid');
             }
             
             // Validate confirm password
             const confirmPasswordInput = document.querySelector('input[name="UserRegistration.ConfirmPassword"]');
-            const confirmPassword = confirmPasswordInput.value;
+            const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
             if (!confirmPassword) {
-                confirmPasswordInput.classList.add('is-invalid');
+                if (confirmPasswordInput) confirmPasswordInput.classList.add('is-invalid');
                 if (!firstError) firstError = confirmPasswordInput;
                 showValidationError('Confirm Password Required', 'Please confirm your password to ensure accuracy', 'lock');
                 isValid = false;
             } else if (password !== confirmPassword) {
-                confirmPasswordInput.classList.add('is-invalid');
+                if (confirmPasswordInput) confirmPasswordInput.classList.add('is-invalid');
                 if (!firstError) firstError = confirmPasswordInput;
                 showValidationError('Password Mismatch', 'The passwords you entered do not match. Please try again.', 'exclamation-triangle');
                 isValid = false;
             } else if (password) {
-                confirmPasswordInput.classList.add('is-valid');
+                if (confirmPasswordInput) confirmPasswordInput.classList.add('is-valid');
             }
             
             // Validate company name
             const companyNameInput = document.querySelector('input[name="Company.Name"]');
-            const companyName = companyNameInput.value.trim();
+            const companyName = companyNameInput ? companyNameInput.value.trim() : '';
+            console.log('Company name:', companyName);
             if (!companyName) {
-                companyNameInput.classList.add('is-invalid');
+                if (companyNameInput) companyNameInput.classList.add('is-invalid');
                 if (!firstError) firstError = companyNameInput;
                 showValidationError('Company Name Required', 'Please enter your company name as it will appear on official documents', 'building');
                 isValid = false;
             } else if (companyName.length < 2) {
-                companyNameInput.classList.add('is-invalid');
+                if (companyNameInput) companyNameInput.classList.add('is-invalid');
                 if (!firstError) firstError = companyNameInput;
                 showValidationError('Company Name Too Short', 'Company name must be at least 2 characters long', 'building');
                 isValid = false;
             } else {
-                companyNameInput.classList.add('is-valid');
+                if (companyNameInput) companyNameInput.classList.add('is-valid');
             }
             
-            // Validate established date
+            // Make established date optional for now
             const establishedDateInput = document.querySelector('input[name="Company.EstablishedDate"]');
-            const establishedDate = establishedDateInput.value;
-            if (!establishedDate) {
-                establishedDateInput.classList.add('is-invalid');
-                if (!firstError) firstError = establishedDateInput;
-                showValidationError('Establishment Date Required', 'Please enter when your company was established', 'calendar-alt');
-                isValid = false;
-            } else {
+            const establishedDate = establishedDateInput ? establishedDateInput.value : '';
+            if (establishedDate) {
                 const selectedDate = new Date(establishedDate);
                 const today = new Date();
                 const hundredYearsAgo = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
                 
                 if (selectedDate > today) {
-                    establishedDateInput.classList.add('is-invalid');
+                    if (establishedDateInput) establishedDateInput.classList.add('is-invalid');
                     if (!firstError) firstError = establishedDateInput;
                     showValidationError('Invalid Date', 'Company establishment date cannot be in the future', 'calendar-alt');
                     isValid = false;
                 } else if (selectedDate < hundredYearsAgo) {
-                    establishedDateInput.classList.add('is-invalid');
+                    if (establishedDateInput) establishedDateInput.classList.add('is-invalid');
                     if (!firstError) firstError = establishedDateInput;
                     showValidationError('Invalid Date', 'Please enter a valid establishment date within the last 100 years', 'calendar-alt');
                     isValid = false;
                 } else {
-                    establishedDateInput.classList.add('is-valid');
+                    if (establishedDateInput) establishedDateInput.classList.add('is-valid');
                 }
             }
+            
+            console.log('Step 1 validation result:', isValid);
             
             // Focus on first error if validation failed
             if (!isValid && firstError) {
@@ -1008,7 +1016,7 @@
                 const email = this.value.trim();
                 this.classList.remove('is-invalid', 'is-valid');
                 
-                if (email && email.includes('@@') && email.includes('.') && email.length >= 5) {
+                if (email && email.includes("@") && email.includes(".") && email.length >= 5) {
                     this.classList.add('is-valid');
                 }
             });
@@ -1061,7 +1069,7 @@
                     this.classList.remove('is-invalid', 'is-valid');
                     
                     if (email) {
-                        if (email.includes('@@') && email.includes('.') && email.length >= 5) {
+                        if (email.includes("@") && email.includes(".") && email.length >= 5) {
                             this.classList.add('is-valid');
                         } else {
                             this.classList.add('is-invalid');
