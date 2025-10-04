@@ -527,6 +527,13 @@
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
+                                        <label asp-for="Company.Code" class="form-label">Company Code</label>
+                                        <input asp-for="Company.Code" class="form-control" placeholder="Enter company code (optional)">
+                                        <span asp-validation-for="Company.Code" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
                                         <label asp-for="Company.Description" class="form-label">What does your company do?</label>
                                         <textarea asp-for="Company.Description" class="form-control" rows="2" placeholder="Brief description of your business"></textarea>
                                         <span asp-validation-for="Company.Description" class="text-danger"></span>
@@ -581,6 +588,22 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label asp-for="Company.State" class="form-label">State/Province</label>
+                                        <input asp-for="Company.State" class="form-control" placeholder="Enter state or province">
+                                        <span asp-validation-for="Company.State" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Company.ZipCode" class="form-label">ZIP/Postal Code</label>
+                                        <input asp-for="Company.ZipCode" class="form-control" placeholder="Enter ZIP or postal code">
+                                        <span asp-validation-for="Company.ZipCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label asp-for="Company.Country" class="form-label">Country</label>
                                         <input asp-for="Company.Country" class="form-control" placeholder="Enter country">
                                         <span asp-validation-for="Company.Country" class="text-danger"></span>
@@ -624,6 +647,12 @@
                                 <label asp-for="Company.Website" class="form-label">Company Website</label>
                                 <input asp-for="Company.Website" type="url" class="form-control" placeholder="https://www.yourcompany.com">
                                 <span asp-validation-for="Company.Website" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="Company.LogoUrl" class="form-label">Company Logo URL</label>
+                                <input asp-for="Company.LogoUrl" type="text" class="form-control" placeholder="https://www.yourcompany.com/logo.png (optional)">
+                                <span asp-validation-for="Company.LogoUrl" class="text-danger"></span>
                             </div>
                             
                             <div class="form-group">
@@ -683,6 +712,9 @@
     <script>
         let currentStep = 1;
         const totalSteps = 3;
+        
+        // Email validation constants (avoiding AT symbol issues with Razor)
+        const AT_SYMBOL = String.fromCharCode(64); // AT symbol
         
         function updateProgress() {
             const progress = (currentStep / totalSteps) * 100;
@@ -767,7 +799,7 @@
             const businessEmail = businessEmailInput.value.trim();
             if (businessEmail) {
                 // Simple email validation without regex
-                if (!businessEmail.includes("@") || !businessEmail.includes(".") || businessEmail.length < 5) {
+                if (!businessEmail.includes(AT_SYMBOL) || !businessEmail.includes(".") || businessEmail.length < 5) {
                     businessEmailInput.classList.add('is-invalid');
                     if (!firstError) firstError = businessEmailInput;
                     showValidationError('Invalid Business Email', 'Please enter a valid email address for your business', 'envelope');
@@ -851,10 +883,10 @@
                 if (!firstError) firstError = emailInput;
                 showValidationError('Email Required', 'Please enter your email address for account verification', 'envelope');
                 isValid = false;
-            } else if (!email.includes("@") || !email.includes(".") || email.length < 5) {
+            } else if (!email.includes(AT_SYMBOL) || !email.includes(".") || email.length < 5) {
                 if (emailInput) emailInput.classList.add('is-invalid');
                 if (!firstError) firstError = emailInput;
-                showValidationError('Invalid Email Format', 'Please enter a valid email address (e.g., admin@company.com)', 'envelope');
+                showValidationError('Invalid Email Format', 'Please enter a valid email address (e.g., admin' + AT_SYMBOL + 'company.com)', 'envelope');
                 isValid = false;
             } else {
                 if (emailInput) emailInput.classList.add('is-valid');
@@ -1016,7 +1048,7 @@
                 const email = this.value.trim();
                 this.classList.remove('is-invalid', 'is-valid');
                 
-                if (email && email.includes("@") && email.includes(".") && email.length >= 5) {
+                if (email && email.includes(AT_SYMBOL) && email.includes(".") && email.length >= 5) {
                     this.classList.add('is-valid');
                 }
             });
@@ -1069,7 +1101,7 @@
                     this.classList.remove('is-invalid', 'is-valid');
                     
                     if (email) {
-                        if (email.includes("@") && email.includes(".") && email.length >= 5) {
+                        if (email.includes(AT_SYMBOL) && email.includes(".") && email.length >= 5) {
                             this.classList.add('is-valid');
                         } else {
                             this.classList.add('is-invalid');
@@ -1195,7 +1227,7 @@
                                 '<div class="mb-3">' +
                                     '<i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>' +
                                 '</div>' +
-                                '<p class="mb-3">Your account has been created and you can now start managing your payroll.</p>' +
+                                '<p class="mb-3">Your account has been created and you are now logged in! You can start managing your payroll right away.</p>' +
                                 '<div class="alert alert-success text-start">' +
                                     '<h6 class="alert-heading">' +
                                         '<i class="fas fa-info-circle me-2"></i>What\'s Next?' +
@@ -1217,7 +1249,8 @@
                         }
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.href = '/';
+                            // Use the redirect URL from the server response, or default to home
+                            window.location.href = data.redirectUrl || '/';
                         }
                     });
                 } else {
