@@ -44,6 +44,14 @@
                 <input type="hidden" asp-for="EmployeeId" />
                 <input type="hidden" asp-for="Employee.CompanyId" />
 
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger mb-4">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Please correct the following errors:</h6>
+                        <div asp-validation-summary="All"></div>
+                    </div>
+                }
+
                 <div class="form-grid">
                     <!-- Personal Information -->
                     <div class="form-section">
@@ -267,25 +275,21 @@
                 return false;
             }
 
-            // Show loading state
+            // Show loading state on button only (no modal dialog)
             const submitBtn = document.querySelector('.btn-save');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
             submitBtn.disabled = true;
 
-            // Show saving message
-            Swal.fire({
-                title: 'Saving Changes...',
-                text: 'Please wait while we update the employee information.',
-                icon: 'info',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
+            // Re-enable button after 10 seconds as a fallback
+            setTimeout(() => {
+                if (submitBtn.disabled) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 }
-            });
+            }, 10000);
 
-            // If validation passes, allow form submission
+            // Allow form submission to proceed normally
             return true;
         });
 
