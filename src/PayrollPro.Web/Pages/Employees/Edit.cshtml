@@ -1,0 +1,238 @@
+@page "/Employees/Edit/{id}"
+@using PayrollPro.Employees
+@using PayrollPro.Web.Pages.Employees
+@model EditModel
+@{
+    ViewData["Title"] = "Edit Employee";
+}
+
+@section styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/css/employee-management-modern.css" />
+}
+
+<div class="employee-management-container">
+    <!-- Modern Professional Header -->
+    <div class="employee-header">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1>
+                        <i class="fas fa-edit me-3"></i>
+                        Edit Employee
+                    </h1>
+                    <p class="subtitle">Update employee information and details</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/Employees?companyId=@Model.Employee.CompanyId" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Employees
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="edit-form-container">
+        <div class="form-card">
+            <div class="form-header">
+                <h3>Employee Information</h3>
+                <p>Update the employee details below</p>
+            </div>
+
+            <form method="post" class="employee-form">
+                <input type="hidden" asp-for="EmployeeId" />
+                <input type="hidden" asp-for="Employee.CompanyId" />
+
+                <div class="form-grid">
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h4>Personal Information</h4>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="Employee.FirstName" class="form-label">First Name</label>
+                                <input asp-for="Employee.FirstName" class="form-control" />
+                                <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Employee.LastName" class="form-label">Last Name</label>
+                                <input asp-for="Employee.LastName" class="form-control" />
+                                <span asp-validation-for="Employee.LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="Employee.Email" class="form-label">Email</label>
+                                <input asp-for="Employee.Email" type="email" class="form-control" />
+                                <span asp-validation-for="Employee.Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Employee.Phone" class="form-label">Phone</label>
+                                <input asp-for="Employee.Phone" class="form-control" />
+                                <span asp-validation-for="Employee.Phone" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Employment Information -->
+                    <div class="form-section">
+                        <h4>Employment Information</h4>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="Employee.EmployeeId" class="form-label">Employee ID</label>
+                                <input asp-for="Employee.EmployeeId" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Employee.Department" class="form-label">Department</label>
+                                <select asp-for="Employee.Department" class="form-select">
+                                    <option value="">Select Department</option>
+                                    <option value="Engineering">Engineering</option>
+                                    <option value="Human Resources">Human Resources</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Sales">Sales</option>
+                                    <option value="Operations">Operations</option>
+                                    <option value="IT">IT</option>
+                                    <option value="Customer Service">Customer Service</option>
+                                    <option value="Administration">Administration</option>
+                                    <option value="Safety">Safety</option>
+                                </select>
+                                <span asp-validation-for="Employee.Department" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="Employee.Position" class="form-label">Position</label>
+                                <input asp-for="Employee.Position" class="form-control" />
+                                <span asp-validation-for="Employee.Position" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Employee.Status" class="form-label">Status</label>
+                                <select asp-for="Employee.Status" class="form-select">
+                                    <option value="0">Active</option>
+                                    <option value="1">Inactive</option>
+                                    <option value="2">On Leave</option>
+                                    <option value="3">Terminated</option>
+                                </select>
+                                <span asp-validation-for="Employee.Status" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="Employee.Salary" class="form-label">Annual Salary</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="Employee.Salary" type="number" step="0.01" class="form-control" />
+                                </div>
+                                <span asp-validation-for="Employee.Salary" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Employee.HireDate" class="form-label">Hire Date</label>
+                                <input asp-for="Employee.HireDate" type="date" class="form-control" />
+                                <span asp-validation-for="Employee.HireDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-section full-width">
+                        <h4>Additional Information</h4>
+                        
+                        <div class="form-group">
+                            <label asp-for="Employee.Notes" class="form-label">Notes</label>
+                            <textarea asp-for="Employee.Notes" class="form-control" rows="4" placeholder="Additional notes about the employee..."></textarea>
+                            <span asp-validation-for="Employee.Notes" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save me-2"></i>
+                        Save Changes
+                    </button>
+                    <a href="/Employees?companyId=@Model.Employee.CompanyId" class="btn-cancel">
+                        <i class="fas fa-times me-2"></i>
+                        Cancel
+                    </a>
+                    <button type="button" class="btn-delete" onclick="confirmDelete('@Model.EmployeeId', '@Model.Employee.FirstName @Model.Employee.LastName')">
+                        <i class="fas fa-trash me-2"></i>
+                        Delete Employee
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(employeeId, employeeName) {
+            Swal.fire({
+                title: 'Delete Employee?',
+                text: `Are you sure you want to delete ${employeeName}? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: '<i class="fas fa-trash me-1"></i>Yes, Delete',
+                cancelButtonText: 'Cancel',
+                backdrop: true,
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Create a form to delete the employee
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/Employees/Delete/${employeeId}`;
+                    
+                    // Add CSRF token
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (token) {
+                        const hiddenToken = document.createElement('input');
+                        hiddenToken.type = 'hidden';
+                        hiddenToken.name = '__RequestVerificationToken';
+                        hiddenToken.value = token.value;
+                        form.appendChild(hiddenToken);
+                    }
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        // Form validation and submit handling
+        document.querySelector('.employee-form').addEventListener('submit', function(e) {
+            const requiredFields = ['Employee.FirstName', 'Employee.LastName', 'Employee.Email', 'Employee.Department', 'Employee.Position'];
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                const input = document.querySelector(`[name="${field}"]`);
+                if (input && !input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('is-invalid');
+                } else if (input) {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Validation Error',
+                    text: 'Please fill in all required fields.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    </script>
+}

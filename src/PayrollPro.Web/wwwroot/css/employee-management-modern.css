@@ -664,6 +664,7 @@
     background: white;
     border-radius: 20px;
     overflow: hidden;
+    overflow-x: auto;
     box-shadow: 0 20px 60px rgba(31, 38, 135, 0.15);
     margin: 2rem;
     backdrop-filter: blur(10px);
@@ -675,6 +676,8 @@
     border-collapse: separate;
     border-spacing: 0;
     font-size: 0.95rem;
+    width: 100%;
+    min-width: 1200px;
 }
 
 .table-container .table thead {
@@ -763,6 +766,42 @@
     border-bottom: none;
 }
 
+/* Table Column Widths for Better Layout (7 columns after removing Company) */
+.table th:nth-child(1) { /* Employee column */
+    width: 300px;
+    min-width: 280px;
+}
+
+.table th:nth-child(2) { /* Department column */
+    width: 160px;
+    min-width: 140px;
+}
+
+.table th:nth-child(3) { /* Position column */
+    width: 180px;
+    min-width: 160px;
+}
+
+.table th:nth-child(4) { /* Salary column */
+    width: 140px;
+    min-width: 120px;
+}
+
+.table th:nth-child(5) { /* Hire Date column */
+    width: 140px;
+    min-width: 120px;
+}
+
+.table th:nth-child(6) { /* Status column */
+    width: 130px;
+    min-width: 110px;
+}
+
+.table th:nth-child(7) { /* Actions column */
+    width: 150px;
+    min-width: 130px;
+}
+
 /* Enhanced Table Cell Styles */
 .table .employee-name-cell {
     display: flex;
@@ -801,6 +840,10 @@
     color: var(--text-primary);
     margin-bottom: 0.25rem;
     line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
 }
 
 .table .employee-position-table {
@@ -1046,4 +1089,348 @@
 
 .table tbody tr {
     animation: fadeIn 0.6s ease-out calc(0.05s * var(--row-delay, 0)) both;
+}
+
+/* ========================================
+   PAYROLL SPECIFIC STYLES
+   ======================================== */
+
+/* Payroll Summary Section */
+.payroll-summary-section {
+    padding: 2rem;
+    background: transparent;
+}
+
+.employee-summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.employee-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.employee-avatar-payroll {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3B82F6, #1E40AF);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-lg);
+}
+
+.employee-summary-info h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.employee-summary-info p {
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.employee-id {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+.salary-info {
+    margin-left: auto;
+    text-align: right;
+}
+
+.salary-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin-bottom: 0.25rem;
+}
+
+.salary-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Payroll Information Grid */
+.payroll-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 2rem 2rem;
+}
+
+.payroll-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.payroll-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+.payroll-card h4 {
+    color: var(--text-primary);
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.payroll-card h4 i {
+    color: var(--primary-blue);
+}
+
+/* Salary Breakdown */
+.payroll-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.breakdown-item:last-child {
+    border-bottom: none;
+}
+
+.breakdown-item label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin: 0;
+}
+
+.breakdown-item value {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.breakdown-item value.amount {
+    color: var(--primary-green);
+}
+
+/* Tax Breakdown */
+.tax-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tax-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.tax-item label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin: 0;
+}
+
+.tax-item value.positive {
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+.tax-item value.deduction {
+    color: var(--primary-orange);
+    font-weight: 600;
+}
+
+.tax-item.total {
+    border-top: 2px solid var(--border-color);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+}
+
+.tax-item value.net-pay {
+    color: var(--primary-green);
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+/* Employment Details */
+.employment-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin: 0;
+}
+
+.detail-row value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Status Badge for Payroll */
+.status-badge-payroll {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-active-payroll {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+}
+
+.status-inactive-payroll {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: white;
+}
+
+.status-terminated-payroll {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.action-button.primary {
+    background: linear-gradient(135deg, var(--primary-green), #059669);
+    color: white;
+}
+
+.action-button.primary:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.action-button.secondary {
+    background: linear-gradient(135deg, var(--primary-blue), #1E40AF);
+    color: white;
+}
+
+.action-button.secondary:hover {
+    background: linear-gradient(135deg, #1E40AF, #1E3A8A);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.action-button.outline {
+    background: transparent;
+    border: 2px solid var(--primary-blue);
+    color: var(--primary-blue);
+}
+
+.action-button.outline:hover {
+    background: var(--primary-blue);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design for Payroll */
+@media (max-width: 1024px) {
+    .payroll-info-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        padding: 0 1.5rem 1.5rem;
+    }
+    
+    .payroll-summary-section {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .employee-summary-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .salary-info {
+        margin-left: 0;
+    }
+    
+    .payroll-info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0 1rem 1rem;
+    }
+    
+    .payroll-card {
+        padding: 1.5rem;
+    }
+    
+    .quick-actions {
+        gap: 0.75rem;
+    }
+    
+    .action-button {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+    }
 }

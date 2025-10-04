@@ -1,0 +1,268 @@
+@page "/Payroll/Employee/{id}"
+@using PayrollPro.Employees
+@using PayrollPro.Web.Pages.Payroll
+@model EmployeeModel
+@{
+    ViewData["Title"] = "Employee Payroll";
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/css/employee-management-modern.css" />
+}
+
+<div class="employee-management-container">
+    <!-- Modern Professional Header -->
+    <div class="employee-header">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1>
+                        <i class="fas fa-money-bill-wave me-3"></i>
+                        Employee Payroll
+                    </h1>
+                    <p class="subtitle">@(Model.Employee?.FullName ?? "Employee") - Payroll Information</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn-add-employee" onclick="processPayroll('@Model.Employee.Id')">
+                        <i class="fas fa-calculator"></i>
+                        Process Payroll
+                    </button>
+                    <a href="/Employees/Details/@Model.Employee.Id" class="btn btn-outline-light">
+                        <i class="fas fa-user me-2"></i> Employee Details
+                    </a>
+                    <a href="/Employees?companyId=@Model.Employee.CompanyId" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Employees
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Summary Card -->
+    <div class="payroll-summary-section">
+        <div class="employee-summary-card">
+            <div class="employee-summary-header">
+                <div class="employee-avatar-payroll">
+                    @Model.Employee.FirstName.Substring(0, 1)@Model.Employee.LastName.Substring(0, 1)
+                </div>
+                <div class="employee-summary-info">
+                    <h3>@Model.Employee.FullName</h3>
+                    <p>@Model.Employee.Position • @Model.Employee.Department</p>
+                    <p class="employee-id">Employee ID: @Model.Employee.EmployeeId</p>
+                </div>
+                <div class="salary-info">
+                    <div class="salary-amount">@Model.Employee.FormattedSalary</div>
+                    <div class="salary-label">Annual Salary</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payroll Information Grid -->
+    <div class="payroll-info-grid">
+        <!-- Salary Breakdown -->
+        <div class="payroll-card">
+            <h4><i class="fas fa-calculator me-2"></i>Salary Breakdown</h4>
+            <div class="payroll-breakdown">
+                <div class="breakdown-item">
+                    <label>Annual Salary</label>
+                    <value class="amount">@Model.Employee.FormattedSalary</value>
+                </div>
+                <div class="breakdown-item">
+                    <label>Monthly Gross</label>
+                    <value class="amount">@((Model.Employee.Salary / 12).ToString("C"))</value>
+                </div>
+                <div class="breakdown-item">
+                    <label>Bi-weekly Gross</label>
+                    <value class="amount">@((Model.Employee.Salary / 26).ToString("C"))</value>
+                </div>
+                <div class="breakdown-item">
+                    <label>Weekly Gross</label>
+                    <value class="amount">@((Model.Employee.Salary / 52).ToString("C"))</value>
+                </div>
+                <div class="breakdown-item">
+                    <label>Hourly Rate (40hrs/week)</label>
+                    <value class="amount">@((Model.Employee.Salary / 2080).ToString("C"))</value>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tax Estimates -->
+        <div class="payroll-card">
+            <h4><i class="fas fa-receipt me-2"></i>Tax Estimates (Monthly)</h4>
+            <div class="tax-breakdown">
+                @{
+                    var monthlyGross = Model.Employee.Salary / 12;
+                    var federalTax = monthlyGross * 0.22m; // Estimated 22% federal
+                    var stateTax = monthlyGross * 0.05m; // Estimated 5% state
+                    var socialSecurity = monthlyGross * 0.062m; // 6.2% Social Security
+                    var medicare = monthlyGross * 0.0145m; // 1.45% Medicare
+                    var totalDeductions = federalTax + stateTax + socialSecurity + medicare;
+                    var netPay = monthlyGross - totalDeductions;
+                }
+                <div class="tax-item">
+                    <label>Gross Pay</label>
+                    <value class="positive">@monthlyGross.ToString("C")</value>
+                </div>
+                <div class="tax-item">
+                    <label>Federal Tax (est.)</label>
+                    <value class="deduction">-@federalTax.ToString("C")</value>
+                </div>
+                <div class="tax-item">
+                    <label>State Tax (est.)</label>
+                    <value class="deduction">-@stateTax.ToString("C")</value>
+                </div>
+                <div class="tax-item">
+                    <label>Social Security</label>
+                    <value class="deduction">-@socialSecurity.ToString("C")</value>
+                </div>
+                <div class="tax-item">
+                    <label>Medicare</label>
+                    <value class="deduction">-@medicare.ToString("C")</value>
+                </div>
+                <div class="tax-item total">
+                    <label>Net Pay (est.)</label>
+                    <value class="net-pay">@netPay.ToString("C")</value>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Details -->
+        <div class="payroll-card">
+            <h4><i class="fas fa-briefcase me-2"></i>Employment Details</h4>
+            <div class="employment-details">
+                <div class="detail-row">
+                    <label>Hire Date</label>
+                    <value>@Model.Employee.HireDate.ToString("MMMM dd, yyyy")</value>
+                </div>
+                <div class="detail-row">
+                    <label>Years of Service</label>
+                    <value>@Model.Employee.YearsOfService years</value>
+                </div>
+                <div class="detail-row">
+                    <label>Status</label>
+                    <value>
+                        <span class="status-badge-payroll status-@(Model.Employee.Status.ToString().ToLower())-payroll">
+                            @Model.Employee.Status
+                        </span>
+                    </value>
+                </div>
+                <div class="detail-row">
+                    <label>Company</label>
+                    <value>@Model.Employee.CompanyName</value>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="payroll-card">
+            <h4><i class="fas fa-tools me-2"></i>Quick Actions</h4>
+            <div class="quick-actions">
+                <button class="action-button primary" onclick="processPayroll('@Model.Employee.Id')">
+                    <i class="fas fa-play me-2"></i>
+                    Process Current Payroll
+                </button>
+                <button class="action-button secondary" onclick="generatePayStub('@Model.Employee.Id')">
+                    <i class="fas fa-file-invoice me-2"></i>
+                    Generate Pay Stub
+                </button>
+                <button class="action-button secondary" onclick="viewPayHistory('@Model.Employee.Id')">
+                    <i class="fas fa-history me-2"></i>
+                    View Pay History
+                </button>
+                <a href="/Employees/Edit/@Model.Employee.Id" class="action-button outline">
+                    <i class="fas fa-edit me-2"></i>
+                    Edit Employee
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function processPayroll(employeeId) {
+            Swal.fire({
+                title: 'Process Payroll',
+                text: 'Are you ready to process payroll for this employee?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10B981',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: '<i class="fas fa-calculator me-1"></i>Process Payroll',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: 'Calculating payroll for employee.',
+                        icon: 'info',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    }).then(() => {
+                        // Redirect to payroll processing page
+                        window.location.href = `/Payroll/Process?employeeId=${employeeId}`;
+                    });
+                }
+            });
+        }
+
+        function generatePayStub(employeeId) {
+            Swal.fire({
+                title: 'Generate Pay Stub',
+                text: 'Select the pay period for the pay stub:',
+                input: 'select',
+                inputOptions: {
+                    'current': 'Current Period',
+                    'previous': 'Previous Period',
+                    'custom': 'Custom Date Range'
+                },
+                inputPlaceholder: 'Select pay period',
+                showCancelButton: true,
+                confirmButtonText: 'Generate',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Please select a pay period';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Generating Pay Stub...',
+                        text: 'Creating PDF pay stub.',
+                        icon: 'info',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    }).then(() => {
+                        Swal.fire({
+                            title: 'Pay Stub Generated!',
+                            text: 'The pay stub has been generated successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'Download PDF',
+                            confirmButtonColor: '#10B981'
+                        });
+                    });
+                }
+            });
+        }
+
+        function viewPayHistory(employeeId) {
+            // This would typically redirect to a pay history page
+            Swal.fire({
+                title: 'Pay History',
+                text: 'This feature will show the complete pay history for this employee.',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        }
+    </script>
+}
