@@ -7,7 +7,84 @@
 }
 
 @section styles {
-    <link rel="stylesheet" href="~/css/employee-management-modern.css" />
+    <link rel="stylesheet" href="~/css/employee-management-modern.css?v=@DateTime.Now.Ticks" />
+    <style>
+        /* Enhanced Payroll UI Styles moved to external CSS file */
+        .payroll-animation {
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        .payroll-card {
+            transition: all 0.3s ease;
+        }
+        
+        .payroll-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .employee-avatar-payroll {
+            transition: transform 0.3s ease;
+        }
+        
+        .employee-avatar-payroll:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Enhanced button styles */
+        .btn-payroll-action {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-payroll-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        /* Enhanced tooltips */
+        .tooltip-enhanced {
+            position: relative;
+        }
+        
+        .tooltip-enhanced:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+        
+        /* Loading animation for cards */
+        .card-loading {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+    </style>
 }
 
 <div class="employee-management-container">
@@ -40,9 +117,9 @@
 
     <!-- Employee Summary Card -->
     <div class="payroll-summary-section">
-        <div class="employee-summary-card">
+        <div class="employee-summary-card payroll-animation">
             <div class="employee-summary-header">
-                <div class="employee-avatar-payroll">
+                <div class="employee-avatar-payroll tooltip-enhanced" data-tooltip="Employee Avatar">
                     @Model.Employee.FirstName.Substring(0, 1)@Model.Employee.LastName.Substring(0, 1)
                 </div>
                 <div class="employee-summary-info">
@@ -61,7 +138,7 @@
     <!-- Payroll Information Grid -->
     <div class="payroll-info-grid">
         <!-- Salary Breakdown -->
-        <div class="payroll-card">
+        <div class="payroll-card payroll-animation" style="animation-delay: 0.1s;">
             <h4><i class="fas fa-calculator me-2"></i>Salary Breakdown</h4>
             <div class="payroll-breakdown">
                 <div class="breakdown-item">
@@ -88,7 +165,7 @@
         </div>
 
         <!-- Tax Estimates -->
-        <div class="payroll-card">
+        <div class="payroll-card payroll-animation" style="animation-delay: 0.2s;">
             <h4><i class="fas fa-receipt me-2"></i>Tax Estimates (Monthly)</h4>
             <div class="tax-breakdown">
                 @{
@@ -128,7 +205,7 @@
         </div>
 
         <!-- Employment Details -->
-        <div class="payroll-card">
+        <div class="payroll-card payroll-animation" style="animation-delay: 0.3s;">
             <h4><i class="fas fa-briefcase me-2"></i>Employment Details</h4>
             <div class="employment-details">
                 <div class="detail-row">
@@ -155,22 +232,22 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="payroll-card">
+        <div class="payroll-card payroll-animation" style="animation-delay: 0.4s;">
             <h4><i class="fas fa-tools me-2"></i>Quick Actions</h4>
             <div class="quick-actions">
-                <button class="action-button primary" onclick="processPayroll('@Model.Employee.Id')">
+                <button class="btn-payroll-action" onclick="processPayroll('@Model.Employee.Id')">
                     <i class="fas fa-play me-2"></i>
                     Process Current Payroll
                 </button>
-                <button class="action-button secondary" onclick="generatePayStub('@Model.Employee.Id')">
+                <button class="btn-payroll-action" onclick="generatePayStub('@Model.Employee.Id')">
                     <i class="fas fa-file-invoice me-2"></i>
                     Generate Pay Stub
                 </button>
-                <button class="action-button secondary" onclick="viewPayHistory('@Model.Employee.Id')">
+                <button class="btn-payroll-action" onclick="viewPayHistory('@Model.Employee.Id')">
                     <i class="fas fa-history me-2"></i>
                     View Pay History
                 </button>
-                <a href="/Employees/Edit/@Model.Employee.Id" class="action-button outline">
+                <a href="/Employees/Edit/@Model.Employee.Id" class="btn-payroll-action" style="text-decoration: none;">
                     <i class="fas fa-edit me-2"></i>
                     Edit Employee
                 </a>
@@ -264,5 +341,58 @@
                 confirmButtonText: 'OK'
             });
         }
+
+        // Enhanced UI interactions on page load
+        $(document).ready(function() {
+            // Add loading animation to cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('card-loading');
+                        setTimeout(() => {
+                            entry.target.classList.remove('card-loading');
+                        }, 1000);
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all payroll cards
+            document.querySelectorAll('.payroll-card').forEach(card => {
+                observer.observe(card);
+            });
+
+            // Add hover effects to amount values
+            $('.amount, .positive, .negative').hover(
+                function() {
+                    $(this).css('transform', 'scale(1.05)');
+                },
+                function() {
+                    $(this).css('transform', 'scale(1)');
+                }
+            );
+
+            // Add click animation to action buttons
+            $('.btn-payroll-action').click(function() {
+                $(this).addClass('clicked');
+                setTimeout(() => {
+                    $(this).removeClass('clicked');
+                }, 200);
+            });
+        });
+
+        // Add clicked animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            .clicked {
+                transform: scale(0.95) !important;
+                transition: transform 0.1s ease !important;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 }

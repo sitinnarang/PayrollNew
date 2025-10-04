@@ -65,7 +65,7 @@ namespace PayrollPro.Web.Pages.Employees
                 await _employeeAppService.UpdateAsync(EmployeeId, Employee);
                 
                 TempData["SuccessMessage"] = $"Employee {Employee.FirstName} {Employee.LastName} has been updated successfully!";
-                return Redirect($"/Employees?companyId={Employee.CompanyId}");
+                return RedirectToPage("./Edit", new { id = EmployeeId });
             }
             catch (Exception ex)
             {
