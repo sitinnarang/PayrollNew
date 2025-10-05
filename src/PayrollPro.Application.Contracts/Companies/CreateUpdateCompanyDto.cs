@@ -70,7 +70,7 @@ namespace PayrollPro.Companies
 
         [StringLength(200)]
         [Display(Name = "Logo URL")]
-        public string? LogoUrl { get; set; }
+        public string LogoUrl { get; set; }
 
         // Payroll Settings
         [Display(Name = "Pay Frequency")]

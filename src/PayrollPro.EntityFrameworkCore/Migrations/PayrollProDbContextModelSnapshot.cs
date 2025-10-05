@@ -102,6 +102,7 @@ namespace PayrollPro.Migrations
                         .HasColumnName("LastModifierId");
 
                     b.Property<string>("LogoUrl")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 

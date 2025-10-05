@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PayrollPro.Companies;
@@ -7,30 +6,20 @@ using System;
 using System.Linq;
 using Volo.Abp.Identity;
 using System.ComponentModel.DataAnnotations;
-using Volo.Abp.Account;
-using Volo.Abp.Domain.Repositories;
-using Microsoft.AspNetCore.Identity;
 
 namespace PayrollPro.Web.Pages.Companies
 {
-    [AllowAnonymous]
     public class CreateCompanyModel : PageModel
     {
         private readonly ICompanyAppService _companyAppService;
         private readonly IIdentityUserAppService _identityUserAppService;
-        private readonly SignInManager<Volo.Abp.Identity.IdentityUser> _signInManager;
-        private readonly UserManager<Volo.Abp.Identity.IdentityUser> _userManager;
 
         public CreateCompanyModel(
             ICompanyAppService companyAppService,
-            IIdentityUserAppService identityUserAppService,
-            SignInManager<Volo.Abp.Identity.IdentityUser> signInManager,
-            UserManager<Volo.Abp.Identity.IdentityUser> userManager)
+            IIdentityUserAppService identityUserAppService)
         {
             _companyAppService = companyAppService;
             _identityUserAppService = identityUserAppService;
-            _signInManager = signInManager;
-            _userManager = userManager;
         }
 
         [BindProperty]
@@ -74,20 +63,12 @@ namespace PayrollPro.Web.Pages.Companies
                 // Then create the company in the database
                 var createdCompany = await _companyAppService.CreateAsync(Company);
 
-                // Automatically sign in the user after successful registration
-                var user = await _userManager.FindByNameAsync(createdUser.UserName);
-                if (user != null)
-                {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                }
-
-                // Return success response with redirect
+                // Return success response
                 return new JsonResult(new { 
                     success = true, 
                     companyId = createdCompany.Id,
                     userId = createdUser.Id,
-                    message = "Company and user account created successfully! You are now logged in.",
-                    redirectUrl = "/" // Redirect to home page after login
+                    message = "Account and company created successfully!" 
                 });
             }
             catch (Exception ex)
@@ -95,7 +76,7 @@ namespace PayrollPro.Web.Pages.Companies
                 // Log the error (you might want to use ILogger here)
                 return new JsonResult(new { 
                     success = false, 
-                    error = $"Failed to create company or user: {ex.Message}" 
+                    error = $"Failed to create account and company: {ex.Message}" 
                 });
             }
         }

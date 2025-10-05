@@ -53,7 +53,7 @@ namespace PayrollPro.Companies
         public bool IsActive { get; set; }
 
         [StringLength(200)]
-        public string? LogoUrl { get; set; }
+        public string LogoUrl { get; set; }
 
         public int EmployeeCount { get; set; }
 
