@@ -1,9 +1,12 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PayrollPro.Companies;
+using PayrollPro.Employees;
 using PayrollPro.Payrolls;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Mvc.UI.RazorPages;
 
 namespace PayrollPro.Web.Pages.Companies
@@ -11,10 +14,12 @@ namespace PayrollPro.Web.Pages.Companies
     public class DetailsModel : AbpPageModel
     {
         private readonly ICompanyAppService _companyAppService;
+        private readonly IEmployeeAppService _employeeAppService;
 
-        public DetailsModel(ICompanyAppService companyAppService)
+        public DetailsModel(ICompanyAppService companyAppService, IEmployeeAppService employeeAppService)
         {
             _companyAppService = companyAppService;
+            _employeeAppService = employeeAppService;
         }
 
         [BindProperty]
@@ -22,6 +27,9 @@ namespace PayrollPro.Web.Pages.Companies
 
         [BindProperty]
         public PayrollSettingsDto PayrollSettings { get; set; } = null!;
+
+        public int ActiveEmployeesCount { get; set; }
+        public int OnLeaveEmployeesCount { get; set; }
 
         public async Task<IActionResult> OnGetAsync(Guid id)
         {
@@ -33,6 +41,11 @@ namespace PayrollPro.Web.Pages.Companies
                 {
                     return NotFound();
                 }
+
+                // Get employee counts by status for this company
+                var companyEmployees = await _employeeAppService.GetEmployeesByCompanyAsync(id, new PagedAndSortedResultRequestDto { MaxResultCount = 1000 });
+                ActiveEmployeesCount = companyEmployees.Items.Count(e => e.Status == EmployeeStatus.Active);
+                OnLeaveEmployeesCount = companyEmployees.Items.Count(e => e.Status == EmployeeStatus.OnLeave);
 
                 // Load payroll settings
                 try

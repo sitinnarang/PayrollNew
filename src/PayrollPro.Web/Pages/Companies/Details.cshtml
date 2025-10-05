@@ -195,14 +195,14 @@
                         </div>
                         
                         <div class="overview-stat-grid">
-                            <div class="overview-stat-item">
-                                <div class="overview-stat-item-value success">@(Model.Company.EmployeeCount - 2)</div>
+                            <a href="/Employees?companyId=@Model.Company.Id&status=Active" class="overview-stat-item">
+                                <div class="overview-stat-item-value success">@Model.ActiveEmployeesCount</div>
                                 <div class="overview-stat-item-label">Active</div>
-                            </div>
-                            <div class="overview-stat-item">
-                                <div class="overview-stat-item-value warning">2</div>
+                            </a>
+                            <a href="/Employees?companyId=@Model.Company.Id&status=OnLeave" class="overview-stat-item">
+                                <div class="overview-stat-item-value warning">@Model.OnLeaveEmployeesCount</div>
                                 <div class="overview-stat-item-label">On Leave</div>
-                            </div>
+                            </a>
                         </div>
                         
                         <div class="overview-stat">

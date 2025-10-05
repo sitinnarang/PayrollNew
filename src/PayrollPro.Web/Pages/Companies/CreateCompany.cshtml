@@ -767,7 +767,7 @@
             const businessEmail = businessEmailInput.value.trim();
             if (businessEmail) {
                 // Simple email validation without regex
-                if (!businessEmail.includes("@") || !businessEmail.includes(".") || businessEmail.length < 5) {
+                if (!businessEmail.includes(String.fromCharCode(64)) || !businessEmail.includes(String.fromCharCode(46)) || businessEmail.length < 5) {
                     businessEmailInput.classList.add('is-invalid');
                     if (!firstError) firstError = businessEmailInput;
                     showValidationError('Invalid Business Email', 'Please enter a valid email address for your business', 'envelope');
@@ -851,7 +851,7 @@
                 if (!firstError) firstError = emailInput;
                 showValidationError('Email Required', 'Please enter your email address for account verification', 'envelope');
                 isValid = false;
-            } else if (!email.includes("@") || !email.includes(".") || email.length < 5) {
+            } else if (!email.includes(String.fromCharCode(64)) || !email.includes(String.fromCharCode(46)) || email.length < 5) {
                 if (emailInput) emailInput.classList.add('is-invalid');
                 if (!firstError) firstError = emailInput;
                 showValidationError('Invalid Email Format', 'Please enter a valid email address (e.g., admin@company.com)', 'envelope');
@@ -1016,7 +1016,7 @@
                 const email = this.value.trim();
                 this.classList.remove('is-invalid', 'is-valid');
                 
-                if (email && email.includes("@") && email.includes(".") && email.length >= 5) {
+                if (email && email.includes(String.fromCharCode(64)) && email.includes(String.fromCharCode(46)) && email.length >= 5) {
                     this.classList.add('is-valid');
                 }
             });
@@ -1069,7 +1069,7 @@
                     this.classList.remove('is-invalid', 'is-valid');
                     
                     if (email) {
-                        if (email.includes("@") && email.includes(".") && email.length >= 5) {
+                        if (email.includes(String.fromCharCode(64)) && email.includes(String.fromCharCode(46)) && email.length >= 5) {
                             this.classList.add('is-valid');
                         } else {
                             this.classList.add('is-invalid');

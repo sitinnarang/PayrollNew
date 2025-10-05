@@ -23,9 +23,15 @@ namespace PayrollPro.Web.Pages.Employees
 
         public PagedResultDto<EmployeeDto> Employees { get; set; } = new();
         public PagedResultDto<CompanyDto> Companies { get; set; } = new();
+        public string? StatusFilter { get; set; }
+        public Guid? CompanyFilter { get; set; }
 
-        public async Task OnGetAsync(Guid? companyId = null)
+        public async Task OnGetAsync(Guid? companyId = null, string? status = null)
         {
+            // Store filter values for the view
+            CompanyFilter = companyId;
+            StatusFilter = status;
+
             // Get all companies for dropdown
             Companies = await _companyAppService.GetListAsync(new PagedAndSortedResultRequestDto
             {
@@ -57,6 +63,23 @@ namespace PayrollPro.Web.Pages.Employees
                     MaxResultCount = 1000
                 });
                 Console.WriteLine($"DEBUG: All employees loaded: {Employees.TotalCount}");
+            }
+
+            // Apply status filter if specified
+            if (!string.IsNullOrEmpty(status) && Enum.TryParse<EmployeeStatus>(status, out var statusEnum))
+            {
+                Console.WriteLine($"DEBUG: Applying status filter: {status}");
+                var filteredEmployees = Employees.Items.Where(e => e.Status == statusEnum).ToList();
+                Employees = new PagedResultDto<EmployeeDto>
+                {
+                    Items = filteredEmployees,
+                    TotalCount = filteredEmployees.Count
+                };
+                Console.WriteLine($"DEBUG: Filtered employees count: {Employees.TotalCount}");
+            }
+            else if (!string.IsNullOrEmpty(status))
+            {
+                Console.WriteLine($"DEBUG: Failed to parse status: {status}");
             }
         }
     }

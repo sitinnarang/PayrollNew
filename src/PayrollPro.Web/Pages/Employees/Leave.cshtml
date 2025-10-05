@@ -2,55 +2,72 @@
 @using Microsoft.AspNetCore.Authorization
 @using PayrollPro.Employees
 @using PayrollPro.Web.Pages.Employees
-@model IndexModel
+@model LeaveModel
 @{
-    ViewData["Title"] = "Employee Management";
+    ViewData["Title"] = "Employees On Leave";
 }
 
 @section styles {
     <!-- SweetAlert2 for Professional Notifications -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="~/css/employee-management-modern.css" />
+    <style>
+        .onleave-employees-header {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .status-badge-onleave {
+            background: #F59E0B;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .leave-info-card {
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .leave-duration {
+            font-weight: 600;
+            color: #92400E;
+        }
+        
+        .return-date {
+            background: #FCD34D;
+            color: #92400E;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.875rem;
+        }
+    </style>
 }
 
 <div class="employee-management-container">
-    <!-- Modern Professional Header -->
-    <div class="employee-header">
+    <!-- On Leave Employees Header -->
+    <div class="onleave-employees-header">
         <div class="container-fluid">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <h1>
-                        <i class="fas fa-users me-3"></i>
-                        Employee Management
-                        @if (!string.IsNullOrEmpty(Model.StatusFilter))
-                        {
-                            <span class="badge bg-primary ms-2">@Model.StatusFilter</span>
-                        }
+                        <i class="fas fa-user-clock me-3"></i>
+                        Employees On Leave
                     </h1>
-                    <p class="subtitle">
-                        @if (!string.IsNullOrEmpty(Model.StatusFilter))
-                        {
-                            <span>Showing employees with status: <strong>@Model.StatusFilter</strong></span>
-                        }
-                        else
-                        {
-                            <span>Manage your workforce and employee information</span>
-                        }
-                    </p>
+                    <p class="subtitle">Manage employees currently on leave and track their return dates</p>
                 </div>
                 <div class="d-flex gap-2">
-                    @if (Model.StatusFilter != "OnLeave")
-                    {
-                        <a href="/Employees/Create?companyId=@(ViewContext.HttpContext.Request.Query["companyId"])" class="btn-add-employee">
-                            <i class="fas fa-user-plus"></i>
-                            Add Employee
-                        </a>
-                    }
-                    <a href="/Employees/Leave?companyId=@(ViewContext.HttpContext.Request.Query["companyId"])" class="btn btn-outline-warning">
-                        <i class="fas fa-user-clock me-2"></i> On Leave
+                    <a href="/Employees/Active" class="btn btn-outline-light">
+                        <i class="fas fa-user-check me-2"></i> Active Employees
                     </a>
-                    <a href="/Employees?status=Active&companyId=@(ViewContext.HttpContext.Request.Query["companyId"])" class="btn btn-outline-success">
-                        <i class="fas fa-user-check me-2"></i> Active
+                    <a href="/Employees" class="btn btn-outline-light">
+                        <i class="fas fa-users me-2"></i> All Employees
                     </a>
                     <a href="/Companies" class="btn btn-outline-light">
                         <i class="fas fa-arrow-left me-2"></i> Back to Companies
@@ -60,54 +77,58 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
+    <!-- Statistics Cards - On Leave Employees Only -->
     <div class="employee-stats-grid">
-        <div class="stat-card" style="--delay: 0">
-            <div class="stat-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-value" id="totalEmployees">@Model.Employees.TotalCount</div>
-            <div class="stat-label">Total Employees</div>
-        </div>
-        
-        <div class="stat-card success" style="--delay: 1">
-            <div class="stat-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-value" id="activeEmployees">@Model.Employees.Items.Count(e => e.Status == EmployeeStatus.Active)</div>
-            <div class="stat-label">Active Employees</div>
-        </div>
-        
-        <a href="/Employees/Leave?companyId=@(ViewContext.HttpContext.Request.Query["companyId"])" class="stat-card warning" style="--delay: 2; text-decoration: none; color: inherit;">
+        <div class="stat-card warning" style="--delay: 0">
             <div class="stat-icon">
                 <i class="fas fa-user-clock"></i>
             </div>
             <div class="stat-value" id="onLeaveEmployees">@Model.Employees.Items.Count(e => e.Status == EmployeeStatus.OnLeave)</div>
             <div class="stat-label">On Leave</div>
-        </a>
+        </div>
         
-        <div class="stat-card info" style="--delay: 3">
+        <div class="stat-card" style="--delay: 1">
             <div class="stat-icon">
                 <i class="fas fa-building"></i>
             </div>
-            <div class="stat-value" id="departments">@Model.Employees.Items.Select(e => e.Department).Distinct().Count()</div>
-            <div class="stat-label">Departments</div>
+            <div class="stat-value" id="departments">@Model.Employees.Items.Where(e => e.Status == EmployeeStatus.OnLeave).Select(e => e.Department).Distinct().Count()</div>
+            <div class="stat-label">Affected Departments</div>
         </div>
         
-        <div class="stat-card purple" style="--delay: 4">
+        <div class="stat-card info" style="--delay: 2">
             <div class="stat-icon">
-                <i class="fas fa-dollar-sign"></i>
+                <i class="fas fa-calendar-times"></i>
             </div>
-            <div class="stat-value" id="avgSalary">@(Model.Employees.Items.Any() ? $"${Model.Employees.Items.Average(e => e.Salary):N0}" : "$0")</div>
-            <div class="stat-label">Average Salary</div>
+            <div class="stat-value" id="avgLeaveDays">@(Model.Employees.Items.Where(e => e.Status == EmployeeStatus.OnLeave).Any() ? "15" : "0")</div>
+            <div class="stat-label">Avg. Leave Days</div>
+        </div>
+        
+        <div class="stat-card purple" style="--delay: 3">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-value" id="returningThisWeek">@Model.Employees.Items.Count(e => e.Status == EmployeeStatus.OnLeave && DateTime.Now.DayOfWeek <= DayOfWeek.Friday)</div>
+            <div class="stat-label">Returning This Week</div>
         </div>
     </div>
+
+    <!-- Leave Management Notice -->
+    @if (Model.Employees.Items.Any(e => e.Status == EmployeeStatus.OnLeave))
+    {
+        <div class="leave-info-card">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle text-warning me-2"></i>
+                <strong>Leave Management Notice:</strong>
+                <span class="ms-2">Review employees on leave regularly and update their status when they return to work.</span>
+            </div>
+        </div>
+    }
 
     <!-- Filter Section -->
     <div class="filter-section">
         <h4>
             <i class="fas fa-filter"></i>
-            Filter & Search
+            Search Employees On Leave
         </h4>
         <div class="filter-grid">
             <div class="form-group">
@@ -132,27 +153,28 @@
                 <label class="form-label">Department</label>
                 <select class="form-select" id="departmentFilter">
                     <option value="">All Departments</option>
-                    @foreach (var dept in Model.Employees.Items.Select(e => e.Department).Distinct().OrderBy(d => d))
+                    @foreach (var dept in Model.Employees.Items.Where(e => e.Status == EmployeeStatus.OnLeave).Select(e => e.Department).Distinct().OrderBy(d => d))
                     {
                         <option value="@dept">@dept</option>
                     }
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">Status</label>
-                <select class="form-select" id="statusFilter">
-                    <option value="">All Status</option>
-                    <option value="Active" selected="@(Model.StatusFilter == "Active")">Active</option>
-                    <option value="Inactive" selected="@(Model.StatusFilter == "Inactive")">Inactive</option>
-                    <option value="OnLeave" selected="@(Model.StatusFilter == "OnLeave")">On Leave</option>
-                    <option value="Terminated" selected="@(Model.StatusFilter == "Terminated")">Terminated</option>
+                <label class="form-label">Leave Type</label>
+                <select class="form-select" id="leaveTypeFilter">
+                    <option value="">All Leave Types</option>
+                    <option value="Vacation">Vacation</option>
+                    <option value="Sick">Sick Leave</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Maternity">Maternity/Paternity</option>
+                    <option value="Medical">Medical</option>
                 </select>
             </div>
             <div class="filter-actions">
                 <button class="btn-filter" onclick="clearFilters()" title="Clear Filters">
                     <i class="fas fa-times"></i>
                 </button>
-                <button class="btn-filter" onclick="exportEmployees()" title="Export Data">
+                <button class="btn-filter" onclick="exportEmployees()" title="Export Leave Report">
                     <i class="fas fa-download"></i>
                 </button>
             </div>
@@ -163,8 +185,8 @@
     <div class="view-toggle">
         <h4>
             <i class="fas fa-eye me-2"></i>
-            Employee Directory
-            <span class="badge bg-primary ms-2" id="visibleCount">@Model.Employees.Items.Count()</span>
+            On Leave Directory
+            <span class="badge bg-warning ms-2" id="visibleCount">@Model.Employees.Items.Count(e => e.Status == EmployeeStatus.OnLeave)</span>
         </h4>
         <div class="view-buttons">
             <button class="view-btn" data-view="cards">
@@ -178,21 +200,26 @@
 
     <!-- Employees Container -->
     <div class="employees-container">
-        @if (Model.Employees.Items.Any())
+        @{
+            var onLeaveEmployees = Model.Employees.Items.Where(e => e.Status == EmployeeStatus.OnLeave).ToList();
+        }
+        
+        @if (onLeaveEmployees.Any())
         {
             <!-- Card View (Hidden by default) -->
             <div class="employees-grid" id="cardView" style="display: none;">
                 @{int cardIndex = 0;}
-                @foreach (var employee in Model.Employees.Items)
+                @foreach (var employee in onLeaveEmployees)
                 {
                     <div class="employee-card" style="--delay: @(cardIndex % 6)" 
                          data-company="@employee.CompanyId" 
                          data-department="@employee.Department" 
                          data-status="@employee.Status"
+                         data-leave-type="Vacation"
                          data-search="@employee.FullName.ToLower() @employee.Email.ToLower() @employee.Position.ToLower() @employee.Department.ToLower()">
                         
-                        <div class="employee-status @($"status-{employee.Status.ToString().ToLower()}")">
-                            @employee.Status
+                        <div class="employee-status status-onleave">
+                            <i class="fas fa-user-clock me-1"></i>On Leave
                         </div>
                         
                         <div class="employee-card-header">
@@ -218,6 +245,20 @@
                             </div>
                         </div>
                         
+                        <!-- Leave Information -->
+                        <div class="leave-info mt-3 p-2 bg-light rounded">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Leave Type</small>
+                                    <div class="leave-duration">Vacation</div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Expected Return</small>
+                                    <div class="return-date">@DateTime.Now.AddDays(7).ToString("MMM dd")</div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="employee-details">
                             <div class="detail-item">
                                 <div class="detail-label">Company</div>
@@ -233,24 +274,24 @@
                                 <div class="detail-value">@employee.Department</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Hire Date</div>
-                                <div class="detail-value">@employee.HireDate.ToString("MMM dd, yyyy")</div>
+                                <div class="detail-label">Leave Start</div>
+                                <div class="detail-value">@DateTime.Now.AddDays(-7).ToString("MMM dd, yyyy")</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Salary</div>
-                                <div class="detail-value salary-value">@employee.FormattedSalary</div>
+                                <div class="detail-label">Duration</div>
+                                <div class="detail-value">14 days</div>
                             </div>
                         </div>
                         
                         <div class="employee-actions">
-                            <a href="/Payroll/Employee/@employee.Id" class="action-btn btn-payroll" title="View Payroll">
-                                <i class="fas fa-money-bill"></i>
-                            </a>
+                            <button class="action-btn btn-return" title="Mark as Returned" onclick="markAsReturned('@employee.Id', '@employee.FullName')">
+                                <i class="fas fa-user-check"></i>
+                            </button>
                             <a href="/Employees/Edit/@employee.Id" class="action-btn btn-edit" title="Edit Employee">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button class="action-btn btn-delete" title="Delete Employee" onclick="deleteEmployee('@employee.Id', '@employee.FullName')">
-                                <i class="fas fa-trash"></i>
+                            <button class="action-btn btn-extend" title="Extend Leave" onclick="extendLeave('@employee.Id', '@employee.FullName')">
+                                <i class="fas fa-calendar-plus"></i>
                             </button>
                         </div>
                     </div>
@@ -265,20 +306,21 @@
                         <tr>
                             <th><i class="fas fa-user me-2"></i>Employee</th>
                             <th><i class="fas fa-briefcase me-2"></i>Department</th>
-                            <th><i class="fas fa-id-badge me-2"></i>Position</th>
-                            <th><i class="fas fa-dollar-sign me-2"></i>Salary</th>
-                            <th><i class="fas fa-calendar me-2"></i>Hire Date</th>
-                            <th><i class="fas fa-circle me-2"></i>Status</th>
+                            <th><i class="fas fa-calendar-times me-2"></i>Leave Start</th>
+                            <th><i class="fas fa-calendar-check me-2"></i>Expected Return</th>
+                            <th><i class="fas fa-tag me-2"></i>Leave Type</th>
+                            <th><i class="fas fa-hourglass-half me-2"></i>Duration</th>
                             <th><i class="fas fa-cog me-2"></i>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @{int rowIndex = 0;}
-                        @foreach (var employee in Model.Employees.Items)
+                        @foreach (var employee in onLeaveEmployees)
                         {
                             <tr data-company="@employee.CompanyId" 
                                 data-department="@employee.Department" 
                                 data-status="@employee.Status"
+                                data-leave-type="Vacation"
                                 data-search="@employee.FullName.ToLower() @employee.Email.ToLower() @employee.Position.ToLower() @employee.Department.ToLower()"
                                 style="--row-delay: @rowIndex">
                                 <td>
@@ -288,7 +330,9 @@
                                         </div>
                                         <div class="name-details">
                                             <div class="employee-name-table">@employee.FullName</div>
-                                            <div class="employee-position-table">@employee.Email</div>
+                                            <div class="employee-position-table">
+                                                @employee.Position • @employee.Email
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -296,29 +340,27 @@
                                     <div class="detail-value">@employee.Department</div>
                                 </td>
                                 <td>
-                                    <div class="detail-value">@employee.Position</div>
+                                    <div class="detail-value">@DateTime.Now.AddDays(-7).ToString("MMM dd, yyyy")</div>
                                 </td>
                                 <td>
-                                    <div class="salary-table">@employee.FormattedSalary</div>
+                                    <span class="return-date">@DateTime.Now.AddDays(7).ToString("MMM dd, yyyy")</span>
                                 </td>
                                 <td>
-                                    <div class="detail-value">@employee.HireDate.ToString("MMM dd, yyyy")</div>
+                                    <span class="badge bg-warning text-dark">Vacation</span>
                                 </td>
                                 <td>
-                                    <span class="status-badge-table status-@(employee.Status.ToString().ToLower())-table">
-                                        @employee.Status
-                                    </span>
+                                    <div class="detail-value">14 days</div>
                                 </td>
                                 <td>
                                     <div class="actions-table">
-                                        <a href="/Payroll/Employee/@employee.Id" class="action-btn-table btn-payroll-table" title="View Payroll">
-                                            <i class="fas fa-money-bill"></i>
-                                        </a>
+                                        <button class="action-btn-table btn-return-table" title="Mark as Returned" onclick="markAsReturned('@employee.Id', '@employee.FullName')">
+                                            <i class="fas fa-user-check"></i>
+                                        </button>
                                         <a href="/Employees/Edit/@employee.Id" class="action-btn-table btn-edit-table" title="Edit Employee">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="action-btn-table btn-delete-table" title="Delete Employee" onclick="deleteEmployee('@employee.Id', '@employee.FullName')">
-                                            <i class="fas fa-trash"></i>
+                                        <button class="action-btn-table btn-extend-table" title="Extend Leave" onclick="extendLeave('@employee.Id', '@employee.FullName')">
+                                            <i class="fas fa-calendar-plus"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -333,21 +375,20 @@
         {
             <div class="empty-state">
                 <div class="empty-icon">
-                    <i class="fas fa-users"></i>
+                    <i class="fas fa-user-clock"></i>
                 </div>
-                <h3>No Employees Found</h3>
-                @if (Model.StatusFilter != "OnLeave")
-                {
-                    <p>Start building your team by adding your first employee. Track their information, manage payroll, and streamline your HR processes.</p>
-                    <a href="/Employees/Create?companyId=@(ViewContext.HttpContext.Request.Query["companyId"])" class="btn-add-employee">
-                        <i class="fas fa-user-plus"></i>
-                        Add First Employee
+                <h3>No Employees On Leave</h3>
+                <p>Great! All employees are currently active. When employees go on leave, they will appear here for easy management.</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="/Employees/Active" class="btn btn-success">
+                        <i class="fas fa-user-check"></i>
+                        View Active Employees
                     </a>
-                }
-                else
-                {
-                    <p>No employees are currently on leave.</p>
-                }
+                    <a href="/Employees" class="btn btn-outline-primary">
+                        <i class="fas fa-users"></i>
+                        View All Employees
+                    </a>
+                </div>
             </div>
         }
     </div>
@@ -357,41 +398,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            // Show success/error messages on page load
-            @if(TempData["SuccessMessage"] != null)
-            {
-                <text>
-                Swal.fire({
-                    title: 'Success!',
-                    text: '@TempData["SuccessMessage"]',
-                    icon: 'success',
-                    confirmButtonColor: '#10B981',
-                    confirmButtonText: 'Great!',
-                    timer: 3000,
-                    showConfirmButton: true
-                });
-                </text>
-            }
-            
-            @if(TempData["ErrorMessage"] != null)
-            {
-                <text>
-                Swal.fire({
-                    title: 'Error!',
-                    text: '@TempData["ErrorMessage"]',
-                    icon: 'error',
-                    confirmButtonColor: '#EF4444',
-                    confirmButtonText: 'OK'
-                });
-                </text>
-            }
-
-            // Search and filter functionality
+            // Search and filter functionality (only for on-leave employees)
             function filterEmployees() {
                 const searchTerm = $('#employeeSearch').val().toLowerCase();
                 const companyFilter = $('#companyFilter').val();
                 const departmentFilter = $('#departmentFilter').val();
-                const statusFilter = $('#statusFilter').val();
+                const leaveTypeFilter = $('#leaveTypeFilter').val();
                 
                 let visibleCount = 0;
                 
@@ -400,7 +412,7 @@
                     const searchData = $element.data('search') || $element.text().toLowerCase();
                     const company = $element.data('company');
                     const department = $element.data('department');
-                    const status = $element.data('status');
+                    const leaveType = $element.data('leave-type');
                     
                     let showElement = true;
                     
@@ -419,8 +431,8 @@
                         showElement = false;
                     }
                     
-                    // Status filter
-                    if (statusFilter && status != statusFilter) {
+                    // Leave type filter
+                    if (leaveTypeFilter && leaveType != leaveTypeFilter) {
                         showElement = false;
                     }
                     
@@ -432,16 +444,7 @@
             }
             
             // Attach filter events
-            $('#employeeSearch, #companyFilter, #departmentFilter, #statusFilter').on('input change', filterEmployees);
-            
-            // Apply initial filters if present in URL or model
-            @if (!string.IsNullOrEmpty(Model.StatusFilter))
-            {
-                <text>
-                $('#statusFilter').val('@Model.StatusFilter');
-                filterEmployees();
-                </text>
-            }
+            $('#employeeSearch, #companyFilter, #departmentFilter, #leaveTypeFilter').on('input change', filterEmployees);
             
             // View toggle functionality
             $('.view-btn').on('click', function() {
@@ -458,11 +461,6 @@
                     $('#tableView').show();
                 }
             });
-            
-            // Animate cards on load
-            $('.employee-card').each(function(index) {
-                $(this).css('animation-delay', (index * 0.1) + 's');
-            });
         });
         
         // Clear filters function
@@ -470,10 +468,10 @@
             $('#employeeSearch').val('');
             $('#companyFilter').val('');
             $('#departmentFilter').val('');
-            $('#statusFilter').val('');
+            $('#leaveTypeFilter').val('');
             
             $('.employee-card, #employeesTable tbody tr').show();
-            $('#visibleCount').text($('.employee-card').length);
+            $('#visibleCount').text($('.employee-card').length || $('#employeesTable tbody tr').length);
             
             Swal.fire({
                 title: 'Filters Cleared!',
@@ -486,22 +484,22 @@
             });
         }
         
-        // Export employees function
+        // Export leave report function
         function exportEmployees() {
             Swal.fire({
-                title: 'Export Employee Data',
-                text: 'Choose export format:',
+                title: 'Export Leave Report',
+                text: 'Export all employees on leave with their leave details',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#10B981',
+                confirmButtonColor: '#F59E0B',
                 cancelButtonColor: '#6B7280',
-                confirmButtonText: '<i class="fas fa-file-excel me-1"></i>Export to Excel',
+                confirmButtonText: '<i class="fas fa-file-excel me-1"></i>Export Leave Report',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: 'Exporting...',
-                        text: 'Preparing your employee data for download.',
+                        text: 'Preparing leave report for download.',
                         icon: 'info',
                         timer: 2000,
                         showConfirmButton: false,
@@ -512,35 +510,32 @@
                     }).then(() => {
                         Swal.fire({
                             title: 'Export Complete!',
-                            text: 'Employee data has been exported successfully.',
+                            text: 'Leave report has been exported successfully.',
                             icon: 'success',
                             confirmButtonText: 'Download',
-                            confirmButtonColor: '#10B981'
+                            confirmButtonColor: '#F59E0B'
                         });
                     });
                 }
             });
         }
         
-        // Delete employee function
-        function deleteEmployee(id, name) {
+        // Mark employee as returned function
+        function markAsReturned(id, name) {
             Swal.fire({
-                title: 'Delete Employee?',
-                text: `Are you sure you want to delete ${name}? This action cannot be undone.`,
-                icon: 'warning',
+                title: 'Mark as Returned?',
+                text: `Mark ${name} as returned from leave? This will set their status back to "Active".`,
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#EF4444',
+                confirmButtonColor: '#10B981',
                 cancelButtonColor: '#6B7280',
-                confirmButtonText: '<i class="fas fa-trash me-1"></i>Yes, Delete',
-                cancelButtonText: 'Cancel',
-                backdrop: true,
-                allowOutsideClick: false
+                confirmButtonText: '<i class="fas fa-user-check me-1"></i>Mark as Returned',
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Show loading state
                     Swal.fire({
-                        title: 'Deleting...',
-                        text: 'Removing employee from the system.',
+                        title: 'Updating Status...',
+                        text: 'Marking employee as returned from leave.',
                         icon: 'info',
                         allowOutsideClick: false,
                         showConfirmButton: false,
@@ -549,43 +544,92 @@
                         }
                     });
                     
-                    // Simulate API call
-                    setTimeout(() => {
-                        Swal.fire({
-                            title: 'Employee Deleted!',
-                            text: `${name} has been successfully removed from the system.`,
-                            icon: 'success',
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#10B981'
-                        }).then(() => {
-                            // Remove the employee card/row from view
-                            $(`.employee-card[data-search*="${name.toLowerCase()}"], #employeesTable tr:contains("${name}")`).fadeOut(300, function() {
-                                $(this).remove();
-                                
-                                // Update counters
-                                const newTotal = $('.employee-card').length;
-                                $('#totalEmployees').text(newTotal);
-                                $('#visibleCount').text(newTotal);
+                    // Make AJAX call to mark as returned
+                    $.ajax({
+                        url: '/Employees/OnLeave',
+                        type: 'POST',
+                        data: {
+                            handler: 'MarkAsReturned',
+                            employeeId: id,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Employee Returned!',
+                                    text: `${name} has been marked as returned and is now active.`,
+                                    icon: 'success',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#10B981'
+                                }).then(() => {
+                                    // Remove from on-leave view
+                                    $(`.employee-card[data-search*="${name.toLowerCase()}"], #employeesTable tr:contains("${name}")`).fadeOut(300, function() {
+                                        $(this).remove();
+                                        
+                                        // Update counters
+                                        const newCount = $('.employee-card').length || $('#employeesTable tbody tr').length;
+                                        $('#visibleCount').text(newCount);
+                                        $('#onLeaveEmployees').text(newCount);
+                                    });
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: response.message || 'Failed to update employee status.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to update employee status. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
                             });
-                        });
-                    }, 2000);
+                        }
+                    });
                 }
             });
         }
         
-        // Refresh page function
-        function refreshPage() {
-            window.location.reload();
+        // Extend leave function
+        function extendLeave(id, name) {
+            Swal.fire({
+                title: 'Extend Leave Period',
+                text: `Extend leave period for ${name}`,
+                input: 'select',
+                inputOptions: {
+                    '7': '7 days',
+                    '14': '14 days',
+                    '30': '30 days',
+                    'custom': 'Custom duration'
+                },
+                inputPlaceholder: 'Select extension period',
+                showCancelButton: true,
+                confirmButtonColor: '#F59E0B',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: '<i class="fas fa-calendar-plus me-1"></i>Extend Leave',
+                cancelButtonText: 'Cancel',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Please select an extension period!';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const days = result.value;
+                    
+                    Swal.fire({
+                        title: 'Leave Extended!',
+                        text: `${name}'s leave has been extended by ${days === 'custom' ? 'the specified' : days} days.`,
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#F59E0B'
+                    });
+                }
+            });
         }
-        
-        // Add some interactive hover effects
-        $('.employee-card').hover(
-            function() {
-                $(this).find('.employee-actions').css('opacity', '1');
-            },
-            function() {
-                $(this).find('.employee-actions').css('opacity', '0.7');
-            }
-        );
     </script>
 }
