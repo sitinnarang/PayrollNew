@@ -60,5 +60,66 @@ namespace PayrollPro.Employees
         [Required]
         [Display(Name = "Company")]
         public Guid CompanyId { get; set; }
+
+        // Additional fields
+        [StringLength(200)]
+        [Display(Name = "Address")]
+        public string? Address { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "City")]
+        public string? City { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "State")]
+        public string? State { get; set; }
+
+        [StringLength(20)]
+        [Display(Name = "Zip Code")]
+        public string? ZipCode { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "Country")]
+        public string? Country { get; set; }
+
+        [Display(Name = "Date of Birth")]
+        public DateTime? DateOfBirth { get; set; }
+
+        [StringLength(100)]
+        [Display(Name = "Emergency Contact Name")]
+        public string? EmergencyContactName { get; set; }
+
+        [StringLength(20)]
+        [Display(Name = "Emergency Contact Phone")]
+        public string? EmergencyContactPhone { get; set; }
+
+        [StringLength(100)]
+        [Display(Name = "Display Name")]
+        public string? DisplayName { get; set; }
+
+        [StringLength(20)]
+        [Display(Name = "Social Security Number")]
+        public string? SocialSecurityNumber { get; set; }
+
+        [Range(0, double.MaxValue)]
+        [Display(Name = "Billing Rate")]
+        public decimal? BillingRate { get; set; }
+
+        [Display(Name = "Billable by Default")]
+        public bool BillableByDefault { get; set; }
+
+        [StringLength(100)]
+        [Display(Name = "Manager")]
+        public string? Manager { get; set; }
+
+        [Display(Name = "Gender")]
+        public string? Gender { get; set; }
+
+        [Display(Name = "Release Date")]
+        public DateTime? ReleaseDate { get; set; }
+
+        [StringLength(20)]
+        [Display(Name = "Mobile Phone")]
+        public string? MobilePhone { get; set; }
     }
 }

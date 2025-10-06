@@ -1,0 +1,55 @@
+@page
+@model PayrollPro.Web.Pages.Test.TestUserCreationModel
+@{
+    ViewBag.Title = "Test User Creation";
+}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h3>Test User Creation</h3>
+        </div>
+        <div class="card-body">
+            @if (Model.TestResult != null)
+            {
+                <div class="alert @(Model.TestResult.Success ? "alert-success" : "alert-danger")">
+                    @if (Model.TestResult.Success)
+                    {
+                        <h5>✅ User Creation Successful!</h5>
+                        <p>User ID: @Model.TestResult.UserId</p>
+                        <p>Username: @Model.TestResult.Username</p>
+                        <p>Email: @Model.TestResult.Email</p>
+                    }
+                    else
+                    {
+                        <h5>❌ User Creation Failed</h5>
+                        <p><strong>Error:</strong> @Model.TestResult.ErrorMessage</p>
+                        @if (!string.IsNullOrEmpty(Model.TestResult.DetailedError))
+                        {
+                            <details>
+                                <summary>Show Details</summary>
+                                <pre>@Model.TestResult.DetailedError</pre>
+                            </details>
+                        }
+                    }
+                </div>
+            }
+            
+            <form method="post">
+                <div class="mb-3">
+                    <label asp-for="TestUsername" class="form-label">Test Username</label>
+                    <input asp-for="TestUsername" class="form-control" value="testuser123" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="TestEmail" class="form-label">Test Email</label>
+                    <input asp-for="TestEmail" class="form-control" type="email" value="test@example.com" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="TestPassword" class="form-label">Test Password</label>
+                    <input asp-for="TestPassword" class="form-control" type="password" value="Test123!" />
+                </div>
+                <button type="submit" class="btn btn-primary">Test User Creation</button>
+            </form>
+        </div>
+    </div>
+</div>

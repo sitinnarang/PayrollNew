@@ -465,6 +465,7 @@
                 </div>
                 
                 <form id="companyForm" method="post">
+                    @Html.AntiForgeryToken()
                     <!-- Step 1: User Account & Company Information -->
                     <div class="step-content active" data-step="1">
                         <div class="form-section">
@@ -1156,19 +1157,14 @@
         
         // Form submission
         document.getElementById('companyForm').addEventListener('submit', function(e) {
+            console.log('Form submit event triggered!');
             e.preventDefault();
             
-            // Final validation before submission
-            if (!validateStep1() || !validateStep2()) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Validation Required',
-                    text: 'Please complete all required fields correctly before submitting.',
-                    confirmButtonText: 'Review Form',
-                    confirmButtonColor: '#ffc107'
-                });
-                return;
-            }
+            // Skip validation for now - let's test basic submission
+            console.log('Skipping validation for debugging...');
+            
+            // Simple alert to confirm we reach this point
+            alert('Form submission started!');
             
             const formData = new FormData(this);
             const createButton = document.getElementById('createButton');
@@ -1209,12 +1205,23 @@
                 }
             }, 200);
             
+            // Debug: Log form data
+            console.log('Form data entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+            
             fetch(window.location.pathname, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.json();
+            })
             .then(data => {
+                console.log('Server response:', data);
                 clearInterval(progressInterval);
                 
                 if (data.success) {
@@ -1227,21 +1234,29 @@
                                 '<div class="mb-3">' +
                                     '<i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>' +
                                 '</div>' +
-                                '<p class="mb-3">Your account has been created and you are now logged in! You can start managing your payroll right away.</p>' +
+                                '<p class="mb-3">Your company and user account have been created successfully!</p>' +
+                                '<div class="alert alert-info text-start">' +
+                                    '<h6 class="alert-heading">' +
+                                        '<i class="fas fa-key me-2"></i>Your Login Credentials' +
+                                    '</h6>' +
+                                    '<p class="mb-1"><strong>Username:</strong> ' + (data.username || 'N/A') + '</p>' +
+                                    '<p class="mb-0"><strong>Email:</strong> ' + (data.email || 'N/A') + '</p>' +
+                                    '<small class="text-muted">Use these credentials to login in the next step.</small>' +
+                                '</div>' +
                                 '<div class="alert alert-success text-start">' +
                                     '<h6 class="alert-heading">' +
                                         '<i class="fas fa-info-circle me-2"></i>What\'s Next?' +
                                     '</h6>' +
                                     '<ul class="mb-0">' +
+                                        '<li>Login with your credentials</li>' +
                                         '<li>Access your company dashboard</li>' +
                                         '<li>Add employees to your system</li>' +
                                         '<li>Set up payroll schedules</li>' +
-                                        '<li>Configure company settings</li>' +
                                     '</ul>' +
                                 '</div>' +
                             '</div>',
                         showConfirmButton: true,
-                        confirmButtonText: 'Continue to Dashboard',
+                        confirmButtonText: 'Go to Login Page',
                         confirmButtonColor: '#28a745',
                         allowOutsideClick: false,
                         customClass: {
@@ -1309,6 +1324,22 @@
         // Initialize
         updateProgress();
         setupRealTimeValidation();
+        
+        // Add direct click handler to submit button as backup
+        document.getElementById('createButton').addEventListener('click', function(e) {
+            console.log('Submit button clicked directly!');
+            alert('Submit button was clicked!');
+            
+            // Check if this is inside a form
+            const form = this.closest('form');
+            console.log('Button is inside form:', form ? 'YES' : 'NO');
+            
+            if (form) {
+                console.log('Form ID:', form.id);
+                // Trigger form submit manually if needed
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>

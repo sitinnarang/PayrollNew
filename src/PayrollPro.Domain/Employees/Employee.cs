@@ -53,7 +53,52 @@ namespace PayrollPro.Employees
         
         public virtual Companies.Company? Company { get; set; }
 
-        public string FullName => $"{FirstName} {LastName}";
+        // Additional fields
+        [StringLength(200)]
+        public string? Address { get; set; }
+
+        [StringLength(50)]
+        public string? City { get; set; }
+
+        [StringLength(50)]
+        public string? State { get; set; }
+
+        [StringLength(20)]
+        public string? ZipCode { get; set; }
+
+        [StringLength(50)]
+        public string? Country { get; set; }
+
+        public DateTime? DateOfBirth { get; set; }
+
+        [StringLength(100)]
+        public string? EmergencyContactName { get; set; }
+
+        [StringLength(20)]
+        public string? EmergencyContactPhone { get; set; }
+
+        [StringLength(100)]
+        public string? DisplayName { get; set; }
+
+        [StringLength(20)]
+        public string? SocialSecurityNumber { get; set; }
+
+        [Range(0, double.MaxValue)]
+        public decimal? BillingRate { get; set; }
+
+        public bool BillableByDefault { get; set; }
+
+        [StringLength(100)]
+        public string? Manager { get; set; }
+
+        public string? Gender { get; set; }
+
+        public DateTime? ReleaseDate { get; set; }
+
+        [StringLength(20)]
+        public string? MobilePhone { get; set; }
+
+        public string FullName => !string.IsNullOrEmpty(DisplayName) ? DisplayName : $"{FirstName} {LastName}";
 
         protected Employee()
         {
@@ -86,6 +131,42 @@ namespace PayrollPro.Employees
             Status = status;
             Notes = notes;
             CompanyId = companyId;
+        }
+
+        public void UpdateExtendedInfo(
+            string? address = null,
+            string? city = null,
+            string? state = null,
+            string? zipCode = null,
+            string? country = null,
+            DateTime? dateOfBirth = null,
+            string? emergencyContactName = null,
+            string? emergencyContactPhone = null,
+            string? displayName = null,
+            string? socialSecurityNumber = null,
+            decimal? billingRate = null,
+            bool billableByDefault = false,
+            string? manager = null,
+            string? gender = null,
+            DateTime? releaseDate = null,
+            string? mobilePhone = null)
+        {
+            Address = address;
+            City = city;
+            State = state;
+            ZipCode = zipCode;
+            Country = country;
+            DateOfBirth = dateOfBirth;
+            EmergencyContactName = emergencyContactName;
+            EmergencyContactPhone = emergencyContactPhone;
+            DisplayName = displayName;
+            SocialSecurityNumber = socialSecurityNumber;
+            BillingRate = billingRate;
+            BillableByDefault = billableByDefault;
+            Manager = manager;
+            Gender = gender;
+            ReleaseDate = releaseDate;
+            MobilePhone = mobilePhone;
         }
 
         public void UpdatePersonalInfo(string firstName, string lastName, string email, string? phone = null)

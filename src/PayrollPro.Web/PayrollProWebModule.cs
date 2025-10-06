@@ -40,6 +40,7 @@ using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.UI;
 using Volo.Abp.UI.Navigation;
 using Volo.Abp.VirtualFileSystem;
+using PayrollPro.Web.Middleware;
 
 namespace PayrollPro.Web;
 
@@ -244,6 +245,7 @@ public class PayrollProWebModule : AbpModule
 
         app.UseUnitOfWork();
         app.UseDynamicClaims();
+        app.UseMiddleware<CompanyRedirectMiddleware>();
         app.UseAuthorization();
 
         app.UseSwagger();

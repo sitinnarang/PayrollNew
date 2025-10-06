@@ -22,13 +22,14 @@ namespace PayrollPro.Web.Pages.Employees
             _employeeAppService = employeeAppService;
         }
 
-        public virtual async Task OnGetAsync()
+        public virtual Task OnGetAsync()
         {
             Employee = new CreateEmployeeViewModel();
             if (CompanyId.HasValue)
             {
                 Employee.CompanyId = CompanyId.Value;
             }
+            return Task.CompletedTask;
         }
 
         public virtual async Task<IActionResult> OnPostAsync()
@@ -38,26 +39,50 @@ namespace PayrollPro.Web.Pages.Employees
                 return Page();
             }
 
-            var input = new CreateUpdateEmployeeDto
+            try
             {
-                FirstName = Employee.FirstName,
-                LastName = Employee.LastName,
-                Email = Employee.Email,
-                Phone = Employee.Phone,
-                EmployeeId = Employee.EmployeeId,
-                Department = Employee.Department,
-                Position = Employee.Position,
-                HireDate = Employee.HireDate,
-                Salary = Employee.Salary,
-                Status = Employee.Status,
-                CompanyId = Employee.CompanyId
-                // Note: Additional fields like SSN, BillingRate etc. would be added here
-                // when the DTO is extended to support them
-            };
+                var input = new CreateUpdateEmployeeDto
+                {
+                    FirstName = Employee.FirstName,
+                    LastName = Employee.LastName,
+                    Email = Employee.Email,
+                    Phone = Employee.Phone,
+                    EmployeeId = Employee.EmployeeId,
+                    Department = Employee.Department,
+                    Position = Employee.Position,
+                    HireDate = Employee.HireDate,
+                    Salary = Employee.Salary,
+                    Status = Employee.Status,
+                    CompanyId = Employee.CompanyId,
+                    Notes = Employee.Notes,
+                    Address = Employee.Address,
+                    City = Employee.City,
+                    State = Employee.State,
+                    ZipCode = Employee.ZipCode,
+                    Country = Employee.Country,
+                    DateOfBirth = Employee.DateOfBirth,
+                    EmergencyContactName = Employee.EmergencyContactName,
+                    EmergencyContactPhone = Employee.EmergencyContactPhone,
+                    DisplayName = Employee.DisplayName,
+                    SocialSecurityNumber = Employee.SocialSecurityNumber,
+                    BillingRate = Employee.BillingRate,
+                    BillableByDefault = Employee.BillableByDefault,
+                    Manager = Employee.Manager,
+                    Gender = Employee.Gender,
+                    ReleaseDate = Employee.ReleaseDate,
+                    MobilePhone = Employee.MobilePhone
+                };
 
-            await _employeeAppService.CreateAsync(input);
+                await _employeeAppService.CreateAsync(input);
 
-            return RedirectToPage("/Companies/Index", new { successMessage = "Employee created successfully!" });
+                return RedirectToPage("/Companies/Index", new { successMessage = "Employee created successfully!" });
+            }
+            catch (Exception)
+            {
+                // Log the error and show a user-friendly message
+                ModelState.AddModelError("", "An error occurred while creating the employee. Please try again.");
+                return Page();
+            }
         }
     }
 

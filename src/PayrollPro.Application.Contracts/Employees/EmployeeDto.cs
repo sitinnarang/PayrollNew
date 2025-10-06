@@ -22,6 +22,24 @@ namespace PayrollPro.Employees
         public Guid CompanyId { get; set; }
         public string CompanyName { get; set; } = string.Empty;
         public string CompanyCode { get; set; } = string.Empty;
+
+        // Additional fields
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ZipCode { get; set; }
+        public string? Country { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string? EmergencyContactName { get; set; }
+        public string? EmergencyContactPhone { get; set; }
+        public string? DisplayName { get; set; }
+        public string? SocialSecurityNumber { get; set; }
+        public decimal? BillingRate { get; set; }
+        public bool BillableByDefault { get; set; }
+        public string? Manager { get; set; }
+        public string? Gender { get; set; }
+        public DateTime? ReleaseDate { get; set; }
+        public string? MobilePhone { get; set; }
         
         // Computed properties
         public int YearsOfService => DateTime.Now.Year - HireDate.Year;
