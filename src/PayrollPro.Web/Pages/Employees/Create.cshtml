@@ -63,6 +63,25 @@
             </div>
             
             <div class="profile-main">
+                <!-- Message Display Area -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach (var modelError in ViewData.ModelState.Where(x => x.Value?.Errors?.Count > 0))
+                            {
+                                @foreach (var error in modelError.Value!.Errors)
+                                {
+                                    <li>@(string.IsNullOrEmpty(error.ErrorMessage) ? error.Exception?.Message : error.ErrorMessage)</li>
+                                }
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                
                 <form id="employeeForm" method="post" asp-antiforgery="true">
                     <input type="hidden" asp-for="Employee.CompanyId" />
                     
@@ -131,7 +150,7 @@
                                     <span asp-validation-for="Employee.Gender" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
-                                    <input type="date" class="form-control" asp-for="Employee.DateOfBirth" />
+                                    <input type="date" class="form-control" asp-for="Employee.DateOfBirth" placeholder=" " />
                                     <label class="form-label">Date of Birth</label>
                                     <span asp-validation-for="Employee.DateOfBirth" class="text-danger"></span>
                                 </div>
@@ -178,9 +197,10 @@
                                     <div class="select-wrapper">
                                         <select class="form-select" asp-for="Employee.Status" required>
                                             <option value="">Select Status</option>
-                                            <option value="0">Active</option>
-                                            <option value="1">Inactive</option>
-                                            <option value="2">Terminated</option>
+                                            <option value="1">Active</option>
+                                            <option value="2">Inactive</option>
+                                            <option value="4">Terminated</option>
+                                            <option value="5">On Leave</option>
                                         </select>
                                     </div>
                                     <span asp-validation-for="Employee.Status" class="text-danger"></span>
@@ -296,6 +316,45 @@
     <script src="~/libs/jquery/dist/jquery.min.js"></script>
     <script src="~/libs/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/canadian-employee-validation.js"></script>
+    <script>
+        // Handle TempData messages on page load
+        $(document).ready(function() {
+            // Handle Success Messages
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: '@Html.Raw(TempData["SuccessTitle"] ?? "Success")',
+                    text: '@Html.Raw(TempData["SuccessMessage"])',
+                    confirmButtonColor: '#28a745',
+                    timer: 5000,
+                    timerProgressBar: true
+                });
+                </text>
+            }
+            
+            // Handle Error Messages
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: '@Html.Raw(TempData["ErrorTitle"] ?? "Error")',
+                    text: '@Html.Raw(TempData["ErrorMessage"])',
+                    confirmButtonColor: '#dc3545',
+                    @if (TempData["ErrorDetails"] != null)
+                    {
+                        <text>
+                        footer: '<small class="text-muted">Details: @Html.Raw(TempData["ErrorDetails"])</small>'
+                        </text>
+                    }
+                });
+                </text>
+            }
+        });
+    </script>
     <script>
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', function() {
@@ -347,16 +406,40 @@
                 input.addEventListener('change', updatePreview);
             });
             
-            // Initialize date inputs with proper formatting
+            // Initialize date inputs with proper formatting and validation
             const dateInputs = document.querySelectorAll('input[type="date"]');
             dateInputs.forEach(input => {
-                // Set default date for hire date
-                if (!input.value && input.name === 'Employee.HireDate') {
-                    const today = new Date();
-                    input.value = today.toISOString().split('T')[0];
+                // Enhanced date input handling
+                function updateDateFieldState(field) {
+                    if (field.value && field.value.length > 0) {
+                        field.classList.add('has-value');
+                        // Ensure the date is properly formatted
+                        try {
+                            const date = new Date(field.value + 'T00:00:00');
+                            if (!isNaN(date.getTime())) {
+                                field.classList.remove('invalid-date');
+                            } else {
+                                field.classList.add('invalid-date');
+                            }
+                        } catch (e) {
+                            field.classList.add('invalid-date');
+                        }
+                    } else {
+                        field.classList.remove('has-value');
+                        field.classList.remove('invalid-date');
+                    }
                 }
                 
-                // Add visual feedback and proper date formatting
+                // Set default date for hire date (today) - but only if empty
+                if (!input.value && input.name === 'Employee.HireDate') {
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    input.value = `${year}-${month}-${day}`;
+                }
+                
+                // Event handlers for better date handling
                 input.addEventListener('focus', function() {
                     this.style.borderColor = '#007bff';
                     this.classList.add('has-value');
@@ -364,64 +447,102 @@
                 
                 input.addEventListener('blur', function() {
                     this.style.borderColor = '';
-                    if (this.value) {
-                        this.classList.add('has-value');
-                    } else {
-                        this.classList.remove('has-value');
-                    }
+                    updateDateFieldState(this);
                 });
                 
                 input.addEventListener('change', function() {
-                    if (this.value) {
-                        this.classList.add('has-value');
-                    } else {
-                        this.classList.remove('has-value');
-                    }
+                    updateDateFieldState(this);
                 });
                 
-                // Check if date input already has value
-                if (input.value) {
-                    input.classList.add('has-value');
-                }
+                input.addEventListener('input', function() {
+                    updateDateFieldState(this);
+                });
+                
+                // Initialize field state
+                updateDateFieldState(input);
             });
             
             // Update preview initially
             updatePreview();
         });
 
-        // Enhanced form submission with validation
+        // Enhanced form submission with Canadian validation and better feedback
         document.getElementById('employeeForm').addEventListener('submit', function(e) {
-            if (!this.checkValidity()) {
-                e.preventDefault();
+            e.preventDefault();
+            
+            const form = this; // Capture form reference for setTimeout
+            
+            // First run basic HTML5 validation
+            if (!form.checkValidity()) {
                 e.stopPropagation();
                 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please fill in all required fields correctly.',
-                    confirmButtonColor: '#007bff'
+                // Collect specific validation errors
+                const requiredFields = form.querySelectorAll(':invalid');
+                let errorMessages = [];
+                
+                requiredFields.forEach(field => {
+                    const label = form.querySelector(`label[for="${field.id}"], label[asp-for="${field.name}"]`);
+                    const fieldName = label ? label.textContent.replace('*', '').trim() : field.name || 'Unknown field';
+                    
+                    if (field.validity.valueMissing) {
+                        errorMessages.push(`${fieldName} is required`);
+                    } else if (field.validity.typeMismatch) {
+                        errorMessages.push(`${fieldName} format is invalid`);
+                    } else if (field.validity.patternMismatch) {
+                        errorMessages.push(`${fieldName} format is incorrect`);
+                    } else if (field.validity.tooShort || field.validity.tooLong) {
+                        errorMessages.push(`${fieldName} length is invalid`);
+                    } else if (field.validity.rangeUnderflow || field.validity.rangeOverflow) {
+                        errorMessages.push(`${fieldName} value is out of range`);
+                    }
                 });
                 
-                this.classList.add('was-validated');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Required',
+                    html: errorMessages.length > 0 
+                        ? `<div class="text-left"><strong>Please fix the following:</strong><ul class="mt-2">${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul></div>`
+                        : 'Please fill in all required fields correctly.',
+                    confirmButtonColor: '#007bff',
+                    confirmButtonText: 'OK, I\'ll fix them'
+                });
+                
+                form.classList.add('was-validated');
                 return false;
             }
             
-            e.preventDefault();
+            // Then run Canadian-specific validation
+            if (window.CanadianEmployeeValidation && !window.CanadianEmployeeValidation.validateForm()) {
+                form.classList.add('was-validated');
+                return false;
+            }
             
+            // Show enhanced loading message with progress
             Swal.fire({
-                title: 'Creating Employee...',
-                text: 'Please wait while we process your request.',
+                title: 'Creating Employee Profile',
+                html: `
+                    <div class="mb-3">
+                        <i class="fas fa-user-plus fa-2x text-primary mb-3"></i>
+                        <p class="mb-2">Processing Canadian employment standards...</p>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                `,
                 allowOutsideClick: false,
+                allowEscapeKey: false,
                 showConfirmButton: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
             });
             
-            // Submit the form after showing loading
+            // Submit the form after showing loading with proper form reference
             setTimeout(() => {
-                this.submit();
-            }, 500);
+                // Remove event listener to prevent infinite loop
+                form.removeEventListener('submit', arguments.callee);
+                form.submit();
+            }, 800);
         });
     </script>
 }

@@ -1,93 +1,96 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using PayrollPro.Employees; // For shared validation attributes
 
 namespace PayrollPro.Companies
 {
     public class CreateUpdateCompanyDto
     {
         [Required]
-        [StringLength(200)]
+        [CanadianBusinessName]
         [Display(Name = "Company Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        [StringLength(100)]
+        [StringLength(20, MinimumLength = 2)]
+        [RegularExpression(@"^[A-Z0-9\-_]+$", ErrorMessage = "Company code must contain only uppercase letters, numbers, hyphens, and underscores")]
         [Display(Name = "Company Code")]
-        public string Code { get; set; }
+        public string? Code { get; set; }
 
-        [StringLength(500)]
-        [Display(Name = "Description")]
-        public string Description { get; set; }
+        [StringLength(1000)]
+        [Display(Name = "Company Description")]
+        public string? Description { get; set; }
 
         [Required]
-        [StringLength(500)]
-        [Display(Name = "Address")]
-        public string Address { get; set; }
+        [CanadianBusinessAddress]
+        [Display(Name = "Business Address")]
+        public string Address { get; set; } = string.Empty;
 
-        [StringLength(100)]
+        [CanadianBusinessCity]
         [Display(Name = "City")]
-        public string City { get; set; }
+        public string? City { get; set; }
 
-        [StringLength(100)]
-        [Display(Name = "State/Province")]
-        public string State { get; set; }
+        [CanadianProvince]
+        [Display(Name = "Province/Territory")]
+        public string? State { get; set; }
 
-        [StringLength(20)]
-        [Display(Name = "ZIP/Postal Code")]
-        public string ZipCode { get; set; }
+        [CanadianPostalCode]
+        [Display(Name = "Postal Code")]
+        public string? ZipCode { get; set; }
 
-        [StringLength(100)]
+        [StringLength(50)]
         [Display(Name = "Country")]
-        public string Country { get; set; }
+        public string? Country { get; set; } = "Canada";
 
-        [StringLength(20)]
-        [Display(Name = "Phone Number")]
-        public string Phone { get; set; }
+        [CanadianPhoneNumber]
+        [Display(Name = "Business Phone")]
+        public string? Phone { get; set; }
 
-        [StringLength(100)]
-        [EmailAddress]
-        [Display(Name = "Email Address")]
-        public string Email { get; set; }
+        [CanadianBusinessEmail]
+        [Display(Name = "Business Email")]
+        public string? Email { get; set; }
 
-        [StringLength(200)]
-        [Url]
-        [Display(Name = "Website")]
-        public string Website { get; set; }
+        [CanadianBusinessWebsite]
+        [Display(Name = "Company Website")]
+        public string? Website { get; set; }
 
-        [StringLength(50)]
-        [Display(Name = "Tax ID")]
-        public string TaxId { get; set; }
+        [CanadianTaxId]
+        [Display(Name = "Business Number (BN) / Tax ID")]
+        public string? TaxId { get; set; }
 
-        [StringLength(50)]
-        [Display(Name = "Registration Number")]
-        public string RegistrationNumber { get; set; }
+        [CanadianBusinessNumber]
+        [Display(Name = "Corporate Registration Number")]
+        public string? RegistrationNumber { get; set; }
 
         [Required]
-        [Display(Name = "Established Date")]
+        [CanadianBusinessDate]
+        [Display(Name = "Date Established")]
+        [DataType(DataType.Date)]
         public DateTime EstablishedDate { get; set; }
 
-        [Display(Name = "Active")]
+        [Display(Name = "Company Active")]
         public bool IsActive { get; set; }
 
-        [StringLength(200)]
-        [Display(Name = "Logo URL")]
+        [CanadianBusinessWebsite]
+        [Display(Name = "Company Logo URL")]
         public string? LogoUrl { get; set; }
 
-        // Payroll Settings
+        // Canadian Payroll Settings
         [Display(Name = "Pay Frequency")]
-        public PayFrequency PayFrequency { get; set; } = PayFrequency.Monthly;
+        public PayFrequency PayFrequency { get; set; } = PayFrequency.BiWeekly;
         
-        [Display(Name = "Pay Period End")]
+        [Display(Name = "Pay Period End Date")]
+        [DataType(DataType.Date)]
         public DateTime? PayPeriodEnd { get; set; }
         
-        [Range(1, 60, ErrorMessage = "Standard work hours must be between 1 and 60")]
-        [Display(Name = "Standard Work Hours")]
+        [CanadianPayrollStandards(1, 84)]
+        [Display(Name = "Standard Work Hours per Week")]
         public int StandardWorkHours { get; set; } = 40;
         
-        [Range(1.0, 5.0, ErrorMessage = "Overtime rate must be between 1.0 and 5.0")]
-        [Display(Name = "Overtime Rate")]
+        [CanadianOvertimeRate]
+        [Display(Name = "Overtime Rate Multiplier")]
         public decimal OvertimeRate { get; set; } = 1.5m;
         
-        [Display(Name = "Auto Process Payroll")]
+        [Display(Name = "Automatically Process Payroll")]
         public bool AutoProcessPayroll { get; set; } = false;
 
         public CreateUpdateCompanyDto()

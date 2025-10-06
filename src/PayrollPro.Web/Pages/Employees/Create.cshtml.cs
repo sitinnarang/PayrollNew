@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using PayrollPro.Employees;
 using Volo.Abp.AspNetCore.Mvc.UI.RazorPages;
 
@@ -29,13 +32,54 @@ namespace PayrollPro.Web.Pages.Employees
             {
                 Employee.CompanyId = CompanyId.Value;
             }
+            else
+            {
+                // Set default company ID if none provided - use first company from database
+                Employee.CompanyId = new Guid("5ED98643-37E3-E3D0-83A9-3A1CC380A120"); // TechNova Solutions
+            }
             return Task.CompletedTask;
         }
 
         public virtual async Task<IActionResult> OnPostAsync()
         {
+            // Log form submission attempt
+            Logger.LogInformation("Employee creation form submitted. CompanyId: {CompanyId}, FirstName: {FirstName}, LastName: {LastName}", 
+                Employee.CompanyId, Employee.FirstName, Employee.LastName);
+
+            // Validate CompanyId is set
+            if (Employee.CompanyId == Guid.Empty)
+            {
+                Logger.LogWarning("CompanyId was empty, setting default to TechNova Solutions");
+                Employee.CompanyId = new Guid("5ED98643-37E3-E3D0-83A9-3A1CC380A120"); // Default to TechNova Solutions
+            }
+
             if (!ModelState.IsValid)
             {
+                // Add detailed debugging information about validation errors
+                Logger.LogError("ModelState validation failed with {ErrorCount} field(s)", ModelState.ErrorCount);
+                
+                foreach (var modelError in ModelState.Where(x => x.Value?.Errors?.Count > 0))
+                {
+                    var fieldName = modelError.Key;
+                    foreach (var error in modelError.Value!.Errors)
+                    {
+                        var errorMessage = !string.IsNullOrEmpty(error.ErrorMessage) ? error.ErrorMessage : error.Exception?.Message ?? "Unknown error";
+                        Logger.LogError("Field '{FieldName}' has error: '{ErrorMessage}'", fieldName, errorMessage);
+                        
+                        // If the error message contains placeholders, log it as a template issue
+                        if (errorMessage.Contains("{0}") || errorMessage.Contains("{") && errorMessage.Contains("}"))
+                        {
+                            Logger.LogError("Error message template issue detected for field '{FieldName}': '{ErrorTemplate}'", fieldName, errorMessage);
+                        }
+                    }
+                }
+                
+                var allErrors = ModelState.Where(x => x.Value?.Errors?.Count > 0)
+                    .SelectMany(x => x.Value!.Errors)
+                    .Select(x => !string.IsNullOrEmpty(x.ErrorMessage) ? x.ErrorMessage : x.Exception?.Message ?? "Unknown error")
+                    .Where(x => !string.IsNullOrEmpty(x));
+                
+                ModelState.AddModelError("", $"Please fix the following validation errors and try again.");
                 return Page();
             }
 
@@ -75,12 +119,63 @@ namespace PayrollPro.Web.Pages.Employees
 
                 await _employeeAppService.CreateAsync(input);
 
-                return RedirectToPage("/Companies/Index", new { successMessage = "Employee created successfully!" });
+                // Set success message in TempData
+                TempData["SuccessMessage"] = $"Employee '{Employee.FirstName} {Employee.LastName}' created successfully!";
+                TempData["SuccessTitle"] = "Employee Created";
+                
+                Logger.LogInformation("Employee '{FirstName} {LastName}' created successfully for CompanyId: {CompanyId}", 
+                    Employee.FirstName, Employee.LastName, Employee.CompanyId);
+
+                return RedirectToPage("/Companies/Details", new { id = Employee.CompanyId });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Log the error and show a user-friendly message
-                ModelState.AddModelError("", "An error occurred while creating the employee. Please try again.");
+                Logger.LogError(ex, "Error creating employee: {ErrorMessage}", ex.Message);
+                
+                // Check if it's an authorization exception
+                if (ex is Volo.Abp.Authorization.AbpAuthorizationException)
+                {
+                    TempData["ErrorMessage"] = "You don't have permission to create employees. Please contact your administrator to grant you the 'Employee Creation' permission.";
+                    TempData["ErrorTitle"] = "Permission Denied";
+                    Logger.LogError("Authorization failed for employee creation. User lacks PayrollPro.Employees.Create permission.");
+                }
+                // Check if it's a validation exception and add specific validation errors
+                else if (ex is Volo.Abp.Validation.AbpValidationException validationEx)
+                {
+                    Logger.LogError("ABP Validation Exception occurred with {ValidationErrorCount} errors", validationEx.ValidationErrors.Count);
+                    
+                    var errorMessages = new List<string>();
+                    foreach (var validationResult in validationEx.ValidationErrors)
+                    {
+                        var memberName = validationResult.MemberNames?.FirstOrDefault() ?? "Unknown";
+                        var errorMessage = validationResult.ErrorMessage ?? "Validation failed";
+                        
+                        ModelState.AddModelError(memberName, errorMessage);
+                        errorMessages.Add($"{memberName}: {errorMessage}");
+                        Logger.LogError("Validation error for {MemberName}: {ErrorMessage}", memberName, errorMessage);
+                    }
+                    
+                    TempData["ErrorMessage"] = "Validation errors occurred:\n" + string.Join("\n", errorMessages);
+                    TempData["ErrorTitle"] = "Validation Failed";
+                    
+                    // Log the full validation exception details
+                    Logger.LogError("Full validation exception: {@ValidationException}", validationEx);
+                }
+                else
+                {
+                    // Generic error handling
+                    var userFriendlyMessage = ex.Message.Contains("duplicate") 
+                        ? "An employee with this information already exists. Please check Employee ID and Email." 
+                        : "An unexpected error occurred while creating the employee. Please check your information and try again.";
+                        
+                    TempData["ErrorMessage"] = userFriendlyMessage;
+                    TempData["ErrorTitle"] = "Error Creating Employee";
+                    TempData["ErrorDetails"] = ex.Message; // For debugging purposes
+                    
+                    ModelState.AddModelError("", userFriendlyMessage);
+                }
+                
                 return Page();
             }
         }

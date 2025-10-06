@@ -299,24 +299,32 @@
     font-weight: 600;
 }
 
-/* Special styling for date inputs */
+/* Enhanced styling for date inputs */
 input[type="date"].form-control {
     color: #495057;
+    font-family: inherit;
+    position: relative;
 }
 
 input[type="date"].form-control::-webkit-calendar-picker-indicator {
     cursor: pointer;
     color: #007bff;
     font-size: 1.1em;
+    background: transparent;
+    border: none;
+    outline: none;
 }
 
 input[type="date"].form-control:focus {
     color: #495057;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Ensure date inputs show floating label when they have value */
+/* Enhanced floating label for date inputs */
 input[type="date"].form-control:valid + .form-label,
-input[type="date"].form-control[value]:not([value=""]) + .form-label {
+input[type="date"].form-control.has-value + .form-label,
+input[type="date"].form-control[value]:not([value=""]) + .form-label,
+input[type="date"].form-control:focus + .form-label {
     top: -8px;
     left: 15px;
     font-size: 0.8rem;
@@ -324,6 +332,50 @@ input[type="date"].form-control[value]:not([value=""]) + .form-label {
     background: white;
     padding: 0 5px;
     font-weight: 600;
+    z-index: 5;
+}
+
+/* Force date inputs to always float label when focused or has value */
+input[type="date"].form-control::-webkit-datetime-edit {
+    color: transparent;
+}
+
+input[type="date"].form-control:focus::-webkit-datetime-edit,
+input[type="date"].form-control:valid::-webkit-datetime-edit {
+    color: #495057;
+}
+
+/* Ensure date input shows floated label by default when focused */
+input[type="date"].form-control:focus + .form-label {
+    top: -8px;
+    left: 15px;
+    font-size: 0.8rem;
+    color: #007bff;
+    background: white;
+    padding: 0 5px;
+    font-weight: 600;
+    z-index: 5;
+}
+
+/* Invalid date styling */
+input[type="date"].form-control.invalid-date {
+    border-color: #dc3545;
+}
+
+input[type="date"].form-control.invalid-date + .form-label {
+    color: #dc3545;
+}
+
+/* Ensure consistent date input appearance across browsers */
+input[type="date"].form-control::-webkit-inner-spin-button,
+input[type="date"].form-control::-webkit-clear-button {
+    display: none;
+}
+
+/* Firefox date input compatibility */
+input[type="date"].form-control::-moz-focus-inner {
+    border: 0;
+    padding: 0;
 }
 
 .form-select {
@@ -556,4 +608,90 @@ textarea.form-control:focus {
     .profile-main {
         padding: 20px;
     }
+}
+
+/* Alert and Message Styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    color: white;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+    color: white;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #ffd43b 0%, #fab005 100%);
+    color: #495057;
+}
+
+.alert ul {
+    padding-left: 20px;
+}
+
+.alert li {
+    margin-bottom: 5px;
+}
+
+.alert .btn-close {
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert .btn-close:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+/* SweetAlert Custom Styles */
+.swal2-popup {
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.swal2-title {
+    font-weight: 600;
+}
+
+.swal2-content {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.swal2-success .swal2-success-ring {
+    border-color: #28a745;
+}
+
+.swal2-error .swal2-x-mark {
+    border-color: #dc3545;
+}
+
+/* Progress bar in loading messages */
+.progress {
+    height: 8px;
+    border-radius: 10px;
+    background-color: rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+    border-radius: 10px;
+}
+
+/* Text alignment utilities for SweetAlert */
+.text-left {
+    text-align: left !important;
 }

@@ -7,12 +7,12 @@ namespace PayrollPro.Employees
     public class CreateUpdateEmployeeDto
     {
         [Required]
-        [StringLength(50)]
+        [CanadianName]
         [Display(Name = "First Name")]
         public string FirstName { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(50)]
+        [CanadianName]
         [Display(Name = "Last Name")]
         public string LastName { get; set; } = string.Empty;
 
@@ -22,38 +22,39 @@ namespace PayrollPro.Employees
         [Display(Name = "Email Address")]
         public string Email { get; set; } = string.Empty;
 
-        [StringLength(20)]
+        [CanadianPhoneNumber]
         [Display(Name = "Phone Number")]
         public string? Phone { get; set; }
 
         [Required]
-        [StringLength(10)]
+        [CanadianEmployeeId]
         [Display(Name = "Employee ID")]
         public string EmployeeId { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(100)]
+        [StringLength(100, MinimumLength = 2)]
         [Display(Name = "Department")]
         public string Department { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(100)]
+        [StringLength(100, MinimumLength = 2)]
         [Display(Name = "Position")]
         public string Position { get; set; } = string.Empty;
 
         [Required]
-        [Range(0, double.MaxValue)]
-        [Display(Name = "Salary")]
+        [CanadianSalary]
+        [Display(Name = "Annual Salary (CAD)")]
         public decimal Salary { get; set; }
 
         [Required]
         [Display(Name = "Hire Date")]
+        [DataType(DataType.Date)]
         public DateTime HireDate { get; set; }
 
         [Display(Name = "Status")]
         public EmployeeStatus Status { get; set; } = EmployeeStatus.Active;
 
-        [StringLength(500)]
+        [StringLength(1000)]
         [Display(Name = "Notes")]
         public string? Notes { get; set; }
 
@@ -61,64 +62,70 @@ namespace PayrollPro.Employees
         [Display(Name = "Company")]
         public Guid CompanyId { get; set; }
 
-        // Additional fields
-        [StringLength(200)]
-        [Display(Name = "Address")]
+        // Extended Canadian Employee Information
+        [StringLength(200, MinimumLength = 5)]
+        [Display(Name = "Street Address")]
         public string? Address { get; set; }
 
-        [StringLength(50)]
+        [StringLength(100, MinimumLength = 2)]
         [Display(Name = "City")]
         public string? City { get; set; }
 
-        [StringLength(50)]
-        [Display(Name = "State")]
+        [CanadianProvince]
+        [Display(Name = "Province/Territory")]
         public string? State { get; set; }
 
-        [StringLength(20)]
-        [Display(Name = "Zip Code")]
+        [CanadianPostalCode]
+        [Display(Name = "Postal Code")]
         public string? ZipCode { get; set; }
 
         [StringLength(50)]
         [Display(Name = "Country")]
-        public string? Country { get; set; }
+        public string? Country { get; set; } = "Canada";
 
+        [CanadianEmploymentAge]
         [Display(Name = "Date of Birth")]
+        [DataType(DataType.Date)]
         public DateTime? DateOfBirth { get; set; }
 
-        [StringLength(100)]
+        [CanadianName]
         [Display(Name = "Emergency Contact Name")]
         public string? EmergencyContactName { get; set; }
 
-        [StringLength(20)]
+        [CanadianPhoneNumber]
         [Display(Name = "Emergency Contact Phone")]
         public string? EmergencyContactPhone { get; set; }
 
-        [StringLength(100)]
-        [Display(Name = "Display Name")]
+        [CanadianName]
+        [Display(Name = "Preferred Name")]
         public string? DisplayName { get; set; }
 
-        [StringLength(20)]
-        [Display(Name = "Social Security Number")]
+        [CanadianSIN]
+        [Display(Name = "Social Insurance Number")]
         public string? SocialSecurityNumber { get; set; }
 
-        [Range(0, double.MaxValue)]
-        [Display(Name = "Billing Rate")]
+        [Range(0, 1000)]
+        [Display(Name = "Hourly Billing Rate (CAD)")]
         public decimal? BillingRate { get; set; }
 
         [Display(Name = "Billable by Default")]
         public bool BillableByDefault { get; set; }
 
-        [StringLength(100)]
-        [Display(Name = "Manager")]
+        [CanadianName]
+        [Display(Name = "Manager/Supervisor")]
         public string? Manager { get; set; }
 
+        [StringLength(30)]
         [Display(Name = "Gender")]
+        [RegularExpression(@"^(Male|Female|Non-binary|Prefer not to say|Other|)$", 
+            ErrorMessage = "Please select a valid gender option")]
         public string? Gender { get; set; }
 
-        [Display(Name = "Release Date")]
+        [Display(Name = "Employment End Date")]
+        [DataType(DataType.Date)]
         public DateTime? ReleaseDate { get; set; }
 
-        [StringLength(20)]
+        [CanadianPhoneNumber]
         [Display(Name = "Mobile Phone")]
         public string? MobilePhone { get; set; }
     }
